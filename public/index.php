@@ -80,13 +80,13 @@ if ($view === 'default_view' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($
         $token = generateToken($subscriber_id, $email);
         $verification_link = $_ENV['SITE_URL'] . '/?email=' . urlencode($email) . '&token=' . urlencode($token) . '&action=verify';
 
-        $welcome_email = '<h1>Thanks for joining Daily Phrase!</h1>
-        <p>Please confirm your email clicking the link below, in order to start receiving your daily phrases:</p>
+        $welcome_email = '<h1>Thanks for joining Poly Phrases!</h1>
+        <p>Please confirm your email clicking the link below, in order to start receiving your daily multilingual phrases:</p>
         <p><a href="' . $verification_link . '" style="background-color:#1b74e4;text-decoration:none;display:inline-block;padding:10px 16px;border-radius:5px;font-size: 16px;font-family:Helvetica,sans-serif;font-weight:bold;color:#FFFFFF;line-height:16px;">Confirm&nbsp;now</a></p><p>You will enjoy the daily phrases :)</p><hr>
         <p style="margin-top:30px;font-size:11px;color:#555;">30 N Gould St Ste N, Sheridan, WY 82801</p>';
 
         // Send verification email (Use your own mail function or mail library)
-        send_email($email, "Verify your email to start receiving your Daily Phrase", $welcome_email);
+        send_email($email, "Verify your email to start receiving your Poly Phrases", $welcome_email);
 
         $view = 'sent_link';
     } else {
@@ -138,7 +138,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
     $page_og_image = '/assets/languages-daily-phrase.jpg';
-    $page_og_title = 'Daily Phrase Service';
+    $page_og_title = 'Poly Phrases';
     switch ($view) {
         case 'view_phrase':
             if (!isset($view_phrase)) {
@@ -165,13 +165,13 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
             echo '<script src="https://www.google.com/recaptcha/api.js"></script>';
     }
     ?>
-    <title>Daily Phrase <?php echo $page_title; ?></title>
+    <title>Poly Phrases <?php echo $page_title; ?></title>
     <meta property="og:title" content="<?php echo $page_og_title; ?>">
     <meta property="og:description"
           content="Subscribe to receive daily phrases in various languages to boost your language skills. Simple, free, and effective learning experience.">
     <meta property="og:image" content="<?php echo $page_og_image; ?>">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Daily Phrase">
+    <meta property="og:site_name" content="Poly Phrases">
     <link rel="icon" href="/assets/icon.png" type="image/png">
     <link rel="stylesheet" href="/assets/suppastyle.css">
     <!-- Google tag (gtag.js) -->

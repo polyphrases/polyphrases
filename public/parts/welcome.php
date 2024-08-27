@@ -19,6 +19,6 @@
         <button class="button" type="submit">Subscribe</button>
     </form>
     <footer>
-        dailyphrase.email - <a target="_blank" href="/privacy.txt" title="Privacy policy">Privacy Policy</a>
+        polyphrases.com - <a target="_blank" href="/privacy.txt" title="Privacy policy">Privacy Policy</a>
     </footer>
 </div>
