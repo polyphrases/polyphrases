@@ -27,6 +27,7 @@ if ($result->rowCount() > 0) {
     $italian = $row['italian'];
     $french = $row['french'];
     $portuguese = $row['portuguese'];
+    $norwegian = $row['norwegian'];
 
     $imagePath = 'https://polyphrases.com/images/' . $date . '.jpg';
     $caption = "$phrase\n\n" .
@@ -35,7 +36,8 @@ if ($result->rowCount() > 0) {
         "Français: $french\n\n" .
         "Deutsch: $german\n\n" .
         "Português: $portuguese\n\n" .
-        "#polygloths #languages";
+        "Norsk: $norwegian\n\n" .
+        "#polygloths #languages #languagescomparison";
 
     // Upload to Instagram
     $response = uploadToInstagram($imagePath, $caption, INSTAGRAM_ACCESS_TOKEN, $_ENV['INSTAGRAM_USER_ID']);
