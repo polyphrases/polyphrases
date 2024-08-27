@@ -74,11 +74,11 @@ foreach ($subscribers as $subscriber) {
     $unsubscribe_link = $_ENV['SITE_URL'] . '/?email=' . urlencode($email) . '&token=' . urlencode($unsubscribe_token) . '&action=unsubscribe';
 
     $message .= "<hr>
-    <p>dailyphrase.email | <i>" . $today . "</i></p>
-    <p style='margin-top:30px;font-size:11px;color:#555;'>30 N Gould St Ste N, Sheridan, WY 82801 - <a href='" . $unsubscribe_link . "' title='Unsubscribe from Daily Phrase'>Unsubscribe</a></p>";
+    <p>polyphrases.com | <i>" . $today . "</i></p>
+    <p style='margin-top:30px;font-size:11px;color:#555;'>30 N Gould St Ste N, Sheridan, WY 82801 - <a href='" . $unsubscribe_link . "' title='Unsubscribe from Poly Phrases'>Unsubscribe</a></p>";
 
     // Send the email (Use your own mail function or mail library)
-    $subject = "Daily Phrase: " . $phrase['phrase'];
+    $subject = $phrase['phrase'];
     $encoded_subject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
 
     send_email($email, $encoded_subject, $message);
