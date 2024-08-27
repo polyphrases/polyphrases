@@ -4,7 +4,7 @@
 function send_email($email_address, $email_subject, $email_content): bool
 {
     $email = new \SendGrid\Mail\Mail();
-    $email->setFrom("info@dailyphrase.email", "Daily Phrase");
+    $email->setFrom("mail@polyphrases.com", "Poly Phrases");
     $email->setSubject($email_subject);
     $email->addTo($email_address);
     $email->addContent("text/html", $email_content);
