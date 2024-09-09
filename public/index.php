@@ -40,7 +40,7 @@ if (isset($_GET['phrase'])) {
 }
 
 // Handle form submission
-if ($view === 'default_view' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) && isset($_POST['g-recaptcha-response']) && is_recaptcha_token_verification_successful($_POST['g-recaptcha-response'])) {
+if ($view === 'subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) && isset($_POST['g-recaptcha-response']) && is_recaptcha_token_verification_successful($_POST['g-recaptcha-response'])) {
     $email = $_POST['email'];
     $languages = ['spanish', 'german', 'italian', 'french', 'portuguese', 'norwegian'];
     $last_sent = date('Y-m-d', strtotime('-1 day'));
