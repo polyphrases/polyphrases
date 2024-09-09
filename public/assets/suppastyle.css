@@ -111,7 +111,7 @@ hr {
 }
 
 .button {
-    background-color: #007bff;
+    background-color: #25d366;
     color: #ffffff;
     border: none;
     border-radius: 4px;
@@ -123,12 +123,12 @@ hr {
 }
 
 .button:hover {
-    background-color: #0056b3;
+    background-color: #075e54;
 }
 
 .button:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(38, 143, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(30, 30, 30, 0.4);
 }
 
 .phrase-viewer figure.image,

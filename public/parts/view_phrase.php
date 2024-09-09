@@ -38,7 +38,13 @@ $audio_base_path = '/voices/' . $view_phrase['date'] . '-';
     <?php endforeach; ?>
 
     <hr>
-    <p class="flex-justify-center"><a class="button" href="/subscribe">Receive a Daily Phrase via email!</a></p>
+    <p class="flex-justify-center">
+        <?php if(isset($_GET['from']) and $_GET['from'] === 'email'){ ?>
+            <a class="button" href="https://wa.me/?text=<?php echo urlencode("Look at this, it's a cool service to practice your *language skills* for free, in a suppa funny way!\n\n" . $_ENV['SITE_URL'] . '/' . $view_phrase['date']); ?>">Share it 😃</a>
+        <?php } else { ?>
+            <a class="button" href="/subscribe">Receive a Daily Phrase via email!</a>
+        <?php } ?>
+    </p>
 </div>
 
 <script>

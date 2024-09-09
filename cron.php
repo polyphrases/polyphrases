@@ -79,7 +79,7 @@ foreach ($subscribers as $subscriber) {
         $message .= "<p><strong>Norwegian:</strong> " . htmlspecialchars($phrase['norwegian']) . "</p>";
     }
 
-    $message .= '<p style="text-align:center;padding:20px;"><a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '" style="display:inline-block;background-color:#fff;text-decoration:none;display:inline-block;padding:10px 16px;border-radius:5px;border:3px solid ' . $emailColor . ';font-size: 16px;font-family:Helvetica,sans-serif;font-weight:bold;color:' . $emailColor . ';line-height:16px;">Listen to the pronunciation ▶️</a></p>';
+    $message .= '<p style="text-align:center;padding:20px;"><a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email" style="display:inline-block;background-color:#fff;text-decoration:none;display:inline-block;padding:10px 16px;border-radius:5px;border:3px solid ' . $emailColor . ';font-size: 16px;font-family:Helvetica,sans-serif;font-weight:bold;color:' . $emailColor . ';line-height:16px;">Listen to the pronunciation ▶️</a></p>';
 
     $message .= $hr_separator . "<p><i>Don't just ignore this. Take your time to learn the new vocabulary, a small step a day makes wonders!</i></p>";
 
