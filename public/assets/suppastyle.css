@@ -131,10 +131,6 @@ hr {
     box-shadow: 0 0 0 2px rgba(30, 30, 30, 0.4);
 }
 
-.button.center {
-    text-align: center;
-}
-
 .phrase-viewer figure.image,
 .phrase-viewer .image img {
     position: relative;
