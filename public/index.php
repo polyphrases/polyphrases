@@ -12,6 +12,17 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
+// Session
+session_start();
+if(!isset($_SESSION['visit_comes_from'])){
+    $_SESSION['visit_comes_from'] = 'unknown';
+}
+
+// Does the visit come from an email link
+if (isset($_GET['from']) and $_GET['from'] === 'email'){
+    $_SESSION['visit_comes_from'] = 'email';
+}
+
 // View
 $view = 'default_view';
 
