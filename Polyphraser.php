@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 require __DIR__ . '/vendor/autoload.php';
@@ -116,7 +117,7 @@ class Polyphraser
         ]);
 
         $data = json_decode($response);
-        $translation = $data->choices[0]->message->content ?? '';
+        $translation = rtrim($data->choices[0]->message->content, '.') ?? '';
         $this->logDebug("Translation in $lang: $translation");
         return $translation;
     }
