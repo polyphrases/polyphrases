@@ -87,7 +87,7 @@ if ($view === 'subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_PO
 
         $welcome_email = '<h1>Thanks for joining Poly Phrases!</h1>
         <p>Please confirm your email clicking the link below, in order to start receiving your daily multilingual phrases:</p>
-        <p><a href="' . $verification_link . '" style="background-color:#1b74e4;text-decoration:none;display:inline-block;padding:10px 16px;border-radius:5px;font-size: 16px;font-family:Helvetica,sans-serif;font-weight:bold;color:#FFFFFF;line-height:16px;">Confirm&nbsp;now</a></p><p>You will enjoy the daily phrases :)</p><hr>
+        <p><a href="' . $verification_link . '" style="background-color:#1b74e4;text-decoration:none;display:inline-block;padding:10px 16px;border-radius:5px;font-size: 16px;font-family:Helvetica,sans-serif;font-weight:bold;color:#FFFFFF;line-height:16px;">Confirm&nbsp;now</a></p><p>You will enjoy the daily phrases, hope you learn something useful every day! :)</p><hr>
         <p style="margin-top:30px;font-size:11px;color:#555;">30 N Gould St Ste N, Sheridan, WY 82801</p>';
 
         // Send verification email (Use your own mail function or mail library)

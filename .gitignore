@@ -3,3 +3,4 @@
 vendor
 instatoken.php
 public/images/*.jpg
+public/voices/*.mp3
