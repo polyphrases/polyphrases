@@ -12,9 +12,16 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
-// Get phrase where audioed = 0
-$stmt = $pdo->prepare("SELECT * FROM phrases WHERE audioed = 0 ORDER BY id LIMIT 1");
-$stmt->execute();
+// Check if $date is set
+if (isset($date)) {
+    // Get phrase by $date
+    $stmt = $pdo->prepare("SELECT * FROM phrases WHERE date = :date");
+    $stmt->execute(['date' => $date]);
+} else {
+    // Get phrase where audioed = 0
+    $stmt = $pdo->prepare("SELECT * FROM phrases WHERE audioed = 0 ORDER BY id LIMIT 1");
+    $stmt->execute();
+}
 $phrase = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($phrase) {
@@ -88,7 +95,6 @@ function generateAudio($voiceId, $text, $lang, $date)
     if ($response) {
         $filePath = __DIR__ . '/public/voices/' . $date . '-' . $lang . '.mp3';
         file_put_contents($filePath, $response);
-        echo "Audio generated and saved for language $lang using voice ID $voiceId\n";
     } else {
         echo "Failed to generate audio for language $lang using voice ID $voiceId\n";
     }
