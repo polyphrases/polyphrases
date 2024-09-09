@@ -15,6 +15,11 @@ try {
 // View
 $view = 'default_view';
 
+// Any forced section to visit?
+if (isset($_GET['do']) && $_GET['do'] === 'subscribe') {
+    $view = 'subscribe';
+}
+
 if (isset($_GET['phrase'])) {
     // Check if it is a valid Y-m-d date
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['phrase'])) {
@@ -154,6 +159,9 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
         case 'verification_completed':
             $page_title = '- Email verified';
             break;
+        case 'subscribe':
+            $page_title = '- Subscribe';
+            break;
         case 'unsubscribed':
             $page_title = '- Unsubscribed';
             break;
@@ -161,7 +169,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
             $page_title = '- Error';
             break;
         default:
-            $page_title = 'via E-mail | Practice your languages!';
+            $page_title = ' | Practice your languages!';
             echo '<script src="https://www.google.com/recaptcha/api.js"></script>';
     }
     ?>
@@ -178,7 +186,11 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XP2B88NNS7"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
         gtag('js', new Date());
         gtag('config', 'G-XP2B88NNS7');
         gtag('config', 'AW-16666605491');
@@ -196,6 +208,9 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
             break;
         case 'verification_completed':
             include 'parts/verification_complete.php';
+            break;
+        case 'subscribe':
+            include 'parts/subscribe.php';
             break;
         case 'unsubscribed':
             include 'parts/unsubscribed.php';

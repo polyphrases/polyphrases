@@ -18,4 +18,4 @@ if(!isset($view_phrase)){
 <h2>Norwegian</h2>
 <p><?php echo $view_phrase['norwegian']; ?></p>
 <hr>
-<p class="flex-justify-center"><a class="button" href="/">Receive a Daily Phrase via email!</a></p>
+<p class="flex-justify-center"><a class="button" href="/subscribe">Receive a Daily Phrase via email!</a></p>

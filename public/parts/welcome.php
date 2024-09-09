@@ -1,24 +1,7 @@
 <div class="flex-me-down">
-    <h1>Receive a daily phrase in multiple languages</h1>
-    <p>It will take you 30 seconds each day to read the phrases and it will help you get new vocabulary as well
-        as
-        stay in touch with the languages you love.</p>
-    <p>Just write your email below, pick your languages, and start receiving your daily dose of language practice for
-        free!</p>
-    <form method="post" action="/" class="flex-me-down">
-        <label><input type="email" id="email" name="email" placeholder="your-email@example.com" required></label>
-        <div class="languages-picker">
-            <label><input type="checkbox" name="spanish" checked> Spanish</label>
-            <label><input type="checkbox" name="german"> German</label>
-            <label><input type="checkbox" name="italian"> Italian</label>
-            <label><input type="checkbox" name="french"> French</label>
-            <label><input type="checkbox" name="portuguese"> Portuguese</label>
-            <label><input type="checkbox" name="norwegian"> Norwegian</label>
-        </div>
-        <div class="g-recaptcha" data-sitekey="<?php echo $_ENV['RECAPTCHA_SITE_KEY']; ?>"></div>
-        <button class="button" type="submit">Subscribe</button>
-    </form>
-    <footer>
-        polyphrases.com - <a target="_blank" href="/privacy.txt" title="Privacy policy">Privacy Policy</a>
-    </footer>
+    <h1>Welcome to Poly Phrases!</h1>
+    <p>Poly Phrases is your daily language booster, designed to keep your skills sharp and your vocabulary growing. Each day, you’ll receive a fresh and imaginative phrase in multiple languages, delivered straight to your inbox.</p>
+    <p>With Poly Phrases, you’ll encounter a variety of words and expressions in fun and surprising contexts, making it easier to remember and use new vocabulary in everyday conversation. It's an effortless and enjoyable way to stay connected with the languages you love.</p>
+    <p>Ready to add some excitement to your language learning? Click below to subscribe and start expanding your multilingual horizons today!</p>
+    <p class="flex-justify-center"><a class="button" href="/subscribe">Subscribe for Free</a></p>
 </div>
