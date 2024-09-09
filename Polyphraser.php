@@ -28,13 +28,13 @@ class Polyphraser
     private function connectDatabase($dbConfig)
     {
         try {
-            $this->pdo = new \PDO( // Use the global namespace for PDO
+            $this->pdo = new \PDO(
                 "mysql:host={$dbConfig['host']};dbname={$dbConfig['dbname']};charset=utf8mb4",
                 $dbConfig['user'],
                 $dbConfig['pass']
             );
-            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION); // Also use the global namespace for the constant
-        } catch (\PDOException $e) { // Use the global namespace for PDOException
+            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        } catch (\PDOException $e) {
             die("Database connection failed: " . $e->getMessage());
         }
     }
@@ -98,14 +98,14 @@ class Polyphraser
         return $phrase;
     }
 
-    private function translate($phrase, $lang)
+    public function translate($phrase, $toLang, $fromLang = 'english')
     {
         $response = $this->openAi->chat([
             'model' => 'gpt-4o',
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => "You are a skilled translator. Translate the following phrase to " . ucfirst($lang) . " maintaining the creativity and humor of the original phrase."
+                    "content" => "You are a skilled translator. Translate the following phrase from " . ucfirst($fromLang) . " to " . ucfirst($toLang) . ", maintaining the creativity and humor of the original phrase."
                 ],
                 [
                     "role" => "user",
@@ -118,7 +118,7 @@ class Polyphraser
 
         $data = json_decode($response);
         $translation = rtrim($data->choices[0]->message->content, '.') ?? '';
-        $this->logDebug("Translation in $lang: $translation");
+        $this->logDebug("Translation from $fromLang to $toLang: $translation");
         return $translation;
     }
 
