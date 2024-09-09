@@ -214,6 +214,10 @@ footer a {
     aside .example-phrase {
         width: 100% !important;
     }
+
+    aside::after {
+        display: none;
+    }
 }
 
 @media (min-width: 500px) {

@@ -313,16 +313,8 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
             // Update the overlay's background color directly using a new style rule
             const style = document.createElement('style');
             style.innerHTML = `
-                aside::after {
-                    content: "";
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
+                aside::after{
                     background: rgba(0, 0, 0, ${newOpacity});
-                    pointer-events: none;
-                    z-index: 1;
                 }
             `;
 
