@@ -207,7 +207,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
         }
         gtag('js', new Date());
         gtag('config', 'G-XP2B88NNS7');
-        gtag('event', 'non_email_visit', {
+        gtag('event', 'visit_source', {
             'event_category': 'User Source',
             'event_label': <?php echo $_SESSION['visit_comes_from']; ?>,
             'value': 1
