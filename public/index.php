@@ -23,6 +23,11 @@ if (isset($_GET['from']) and $_GET['from'] === 'email'){
     $_SESSION['visit_comes_from'] = 'email';
 }
 
+// Does the visit come from a whatsapp link
+if (isset($_GET['from']) and $_GET['from'] === 'whatsapp'){
+    $_SESSION['visit_comes_from'] = 'whatsapp';
+}
+
 // View
 $view = 'default_view';
 
@@ -197,14 +202,16 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XP2B88NNS7"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-
         function gtag() {
             dataLayer.push(arguments);
         }
-
         gtag('js', new Date());
         gtag('config', 'G-XP2B88NNS7');
-        gtag('config', 'AW-16666605491');
+        gtag('event', 'non_email_visit', {
+            'event_category': 'User Source',
+            'event_label': <?php echo $_SESSION['visit_comes_from']; ?>,
+            'value': 1
+        });
     </script>
 </head>
 <body>
