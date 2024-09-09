@@ -292,5 +292,49 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
     }
     ?>
 </aside>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mainElement = document.querySelector('main');
+        const asideElement = document.querySelector('aside');
+
+        // Make sure both elements exist
+        if (!mainElement || !asideElement) {
+            return;
+        }
+
+        mainElement.addEventListener('scroll', function() {
+            const scrollTop = mainElement.scrollTop;
+            const scrollHeight = mainElement.scrollHeight - mainElement.clientHeight;
+            const scrollPercentage = scrollTop / scrollHeight;
+
+            // Calculate the new opacity (0.2 to 0.9)
+            const newOpacity = 0.2 + (0.7 * scrollPercentage);
+
+            // Update the overlay's background color directly using a new style rule
+            const style = document.createElement('style');
+            style.innerHTML = `
+                aside::after {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, ${newOpacity});
+                    pointer-events: none;
+                    z-index: 1;
+                }
+            `;
+
+            // Remove any previously added styles
+            const existingStyle = document.querySelector('#dynamic-style');
+            if (existingStyle) existingStyle.remove();
+
+            // Add the new style
+            style.id = 'dynamic-style';
+            document.head.appendChild(style);
+        });
+    });
+</script>
 </body>
 </html>

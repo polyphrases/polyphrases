@@ -10,6 +10,19 @@ aside {
     grid-template-columns: 1fr;
     padding: 1rem;
     gap: 1rem;
+    z-index: 1;
+}
+
+aside::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    z-index: 1;
 }
 
 main {
@@ -18,6 +31,7 @@ main {
     padding: 3rem;
     width: 100%;
     box-sizing: border-box;
+    z-index: 2;
 }
 
 .example-phrase {
