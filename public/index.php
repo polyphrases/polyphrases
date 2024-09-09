@@ -161,6 +161,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
             break;
         case 'subscribe':
             $page_title = '- Subscribe';
+            echo '<script src="https://www.google.com/recaptcha/api.js"></script>';
             break;
         case 'unsubscribed':
             $page_title = '- Unsubscribed';
@@ -170,7 +171,6 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
             break;
         default:
             $page_title = ' | Practice your languages!';
-            echo '<script src="https://www.google.com/recaptcha/api.js"></script>';
     }
     ?>
     <title>Poly Phrases <?php echo $page_title; ?></title>
