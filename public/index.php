@@ -177,7 +177,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
     <meta property="og:title" content="<?php echo $page_og_title; ?>">
     <meta property="og:description"
           content="Subscribe to receive daily phrases in various languages to boost your language skills. Simple, free, and effective learning experience.">
-    <meta property="og:image" content="<?php echo $page_og_image; ?>">
+    <meta property="og:image" content="https://polyphrases.com<?php echo $page_og_image; ?>">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Poly Phrases">
     <link rel="icon" href="/assets/icon.png" type="image/png">
