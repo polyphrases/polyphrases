@@ -145,6 +145,13 @@ hr {
     box-shadow: 0 0 0 2px rgba(30, 30, 30, 0.4);
 }
 
+.phrase-viewer header {
+    position: relative;
+    padding: 0;
+    text-align: center;
+    margin: 0 0 2rem;
+}
+
 .phrase-viewer figure.image,
 .phrase-viewer .image img {
     position: relative;
@@ -155,7 +162,30 @@ hr {
     border-radius: 8px;
 }
 
+.phrase-viewer a {
+    text-decoration: none;
+}
+
+.phrase-viewer a h1 {
+    margin-bottom: 0.6rem;
+    color: #222;
+    letter-spacing: 0.15rem;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+}
+
+.phrase-viewer a:hover h1 {
+    color: #000;
+}
+
 .phrase-viewer h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 100;
+    color: #999;
+}
+
+.phrase-viewer h3 {
     display: flex;
     justify-content: space-between;
     align-items: center;
