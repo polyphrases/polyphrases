@@ -1,5 +1,5 @@
 <div class="flex-me-down">
-    <h1>Subscribe to Daily Phrases</h1>
+    <h1>Subscribe to Poly Phrases</h1>
     <p>Receive a daily phrase in multiple languages directly to your email.</p>
     <p>Simply enter your email, choose your languages, and start your daily language practice journey!</p>
     <form method="post" action="/subscribe" class="flex-me-down">
