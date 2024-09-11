@@ -158,7 +158,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
-    $page_og_image = '/assets/languages-daily-phrase.jpg';
+    $page_og_image = '/assets/polyphrases.webp';
     $page_og_title = 'Poly Phrases';
     switch ($view) {
         case 'view_phrase':
