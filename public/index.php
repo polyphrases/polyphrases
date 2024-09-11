@@ -99,7 +99,7 @@ if ($view === 'subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_PO
         $subscriber_id = $subscriber ? $subscriber['id'] : null;
 
         $token = generateToken($subscriber_id, $email);
-        $verification_link = $_ENV['SITE_URL'] . '/?email=' . urlencode($email) . '&token=' . urlencode($token) . '&action=verify';
+        $verification_link = $_ENV['SITE_URL'] . '/?email=' . urlencode($email) . '&token=' . urlencode($token) . '&action=verify&from=email';
 
         $welcome_email = '<h1>Thanks for joining Poly Phrases!</h1>
         <p>Please confirm your email clicking the link below, in order to start receiving your daily multilingual phrases:</p>
