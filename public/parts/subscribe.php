@@ -13,7 +13,7 @@
             <label><input type="checkbox" name="norwegian"> Norwegian</label>
         </div>
         <div class="g-recaptcha" data-sitekey="<?php echo $_ENV['RECAPTCHA_SITE_KEY']; ?>"></div>
-        <button class="button" type="submit">Subscribe</button>
+        <button class="button" type="submit">Subscribe - It's Free!</button>
     </form>
     <footer>
         polyphrases.com - <a target="_blank" href="/privacy.txt" title="Privacy policy">Privacy Policy</a>
