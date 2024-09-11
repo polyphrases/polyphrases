@@ -14,17 +14,17 @@ try {
 
 // Session
 session_start();
-if(!isset($_SESSION['visit_comes_from'])){
+if (!isset($_SESSION['visit_comes_from'])) {
     $_SESSION['visit_comes_from'] = 'unknown';
 }
 
 // Does the visit come from an email link
-if (isset($_GET['from']) and $_GET['from'] === 'email'){
+if (isset($_GET['from']) and $_GET['from'] === 'email') {
     $_SESSION['visit_comes_from'] = 'email';
 }
 
 // Does the visit come from a whatsapp link
-if (isset($_GET['from']) and $_GET['from'] === 'whatsapp'){
+if (isset($_GET['from']) and $_GET['from'] === 'whatsapp') {
     $_SESSION['visit_comes_from'] = 'whatsapp';
 }
 
@@ -202,9 +202,11 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XP2B88NNS7"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
+
         function gtag() {
             dataLayer.push(arguments);
         }
+
         gtag('js', new Date());
         gtag('config', 'G-XP2B88NNS7');
         gtag('event', 'visit_source', {
@@ -243,57 +245,60 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
 </main>
 <aside>
     <?php
-    // Pick 5 random phrases
-    if ($view === 'view_phrase') {
-        $stmt = $pdo->prepare("SELECT * FROM phrases WHERE imaged=1 and date<CURDATE() and date!=:date ORDER BY RAND() LIMIT 4");
-        $stmt->bindParam(':date', $_GET['phrase']);
-    } else {
-        $stmt = $pdo->prepare("SELECT * FROM phrases WHERE imaged=1 and date<CURDATE() ORDER BY RAND() LIMIT 4");
-    }
-    $stmt->execute();
-    $phrases = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $views_without_aside = ['sent_link', 'subscribe'];
+    if (!in_array($view, $views_without_aside)) {
+        // Pick 5 random phrases
+        if ($view === 'view_phrase') {
+            $stmt = $pdo->prepare("SELECT * FROM phrases WHERE imaged=1 and date<CURDATE() and date!=:date ORDER BY RAND() LIMIT 4");
+            $stmt->bindParam(':date', $_GET['phrase']);
+        } else {
+            $stmt = $pdo->prepare("SELECT * FROM phrases WHERE imaged=1 and date<CURDATE() ORDER BY RAND() LIMIT 4");
+        }
+        $stmt->execute();
+        $phrases = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Randomize the position and size of the phrases
-    $randomization_power = [
-        [
-            'top:' . rand(3, 6) . '%',
-            'right:' . rand(3, 7) . '%',
-            'width:' . rand(210, 280) . 'px'
-        ],
-        [
-            'bottom:' . rand(3, 8) . '%',
-            'right:' . rand(3, 7) . '%',
-            'width:' . rand(205, 260) . 'px'
-        ],
-        [
-            'bottom:' . rand(3, 6) . '%',
-            'left:' . rand(3, 7) . '%',
-            'width:' . rand(210, 285) . 'px'
-        ],
-        [
-            'top:' . rand(3, 8) . '%',
-            'left:' . rand(3, 7) . '%',
-            'width:' . rand(206, 275) . 'px'
-        ]
-    ];
+        // Randomize the position and size of the phrases
+        $randomization_power = [
+            [
+                'top:' . rand(3, 6) . '%',
+                'right:' . rand(3, 7) . '%',
+                'width:' . rand(210, 280) . 'px'
+            ],
+            [
+                'bottom:' . rand(3, 8) . '%',
+                'right:' . rand(3, 7) . '%',
+                'width:' . rand(205, 260) . 'px'
+            ],
+            [
+                'bottom:' . rand(3, 6) . '%',
+                'left:' . rand(3, 7) . '%',
+                'width:' . rand(210, 285) . 'px'
+            ],
+            [
+                'top:' . rand(3, 8) . '%',
+                'left:' . rand(3, 7) . '%',
+                'width:' . rand(206, 275) . 'px'
+            ]
+        ];
 
-    // Display the phrases
-    $i = 0;
-    foreach ($phrases as $phrase) {
-        $languages = ['phrase', 'spanish', 'german', 'italian', 'french', 'portuguese', 'norwegian'];
-        echo '
+        // Display the phrases
+        $i = 0;
+        foreach ($phrases as $phrase) {
+            $languages = ['phrase', 'spanish', 'german', 'italian', 'french', 'portuguese', 'norwegian'];
+            echo '
         <div class="example-phrase" style="' . implode(';', $randomization_power[$i]) . '">
             <a href="/' . $phrase['date'] . '"><figure>
                 <img src="/images/' . $phrase['date'] . '.jpg" alt="Day ' . $phrase['phrase'] . '">
                 <figcaption><span>' . $phrase[$languages[array_rand($languages)]] . '</span></figcaption>
             </figure></a>
         </div>';
-        $i++;
+            $i++;
+        }
     }
     ?>
 </aside>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const mainElement = document.querySelector('main');
         const asideElement = document.querySelector('aside');
 
@@ -302,7 +307,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
             return;
         }
 
-        mainElement.addEventListener('scroll', function() {
+        mainElement.addEventListener('scroll', function () {
             const scrollTop = mainElement.scrollTop;
             const scrollHeight = mainElement.scrollHeight - mainElement.clientHeight;
             const scrollPercentage = scrollTop / scrollHeight;
