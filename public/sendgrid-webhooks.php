@@ -11,43 +11,50 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
-// Get the raw input from the webhook
+// Get the raw payload and headers
 $rawPayload = file_get_contents('php://input');
-
-// Extract the signature and timestamp from the headers
 $signature = $_SERVER['HTTP_X_TWILIO_EMAIL_EVENT_WEBHOOK_SIGNATURE'];
 $timestamp = $_SERVER['HTTP_X_TWILIO_EMAIL_EVENT_WEBHOOK_TIMESTAMP'];
 
-// Get the verification key from environment variables
+// Public key from environment (make sure it's in PEM format for OpenSSL)
 $publicKey = $_ENV['SENDGRID_WEBHOOK_VERIFICATION_KEY'];
-$payload = $timestamp . $rawPayload;
 
-// Calculate the expected signature (HMAC and base64 encoding)
-$calculatedBinarySignature = hash_hmac('sha256', $payload, base64_decode($publicKey), true);
-$calculatedSignature = base64_encode($calculatedBinarySignature);
+// Step 1: Decode the Base64-encoded signature
+$decodedSignature = base64_decode($signature);
 
-// Log additional debugging info
-$logFile = __DIR__ . "/webhook-debug-" . uniqid() . ".txt";
-$logData = [
-    'received_signature' => $signature,
-    'timestamp' => $timestamp,
-    'payload' => $rawPayload,
-    'public_key' => $publicKey, // Log the verification key
-    'calculated_signature' => $calculatedSignature, // Log the calculated signature
-    'binary_hmac' => bin2hex($calculatedBinarySignature) // Log the raw binary HMAC
-];
-file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT));
+// Step 2: Hash the concatenation of timestamp + payload using SHA-256
+$hashedPayload = hash('sha256', $timestamp . $rawPayload, true);
 
-// Compare the calculated signature to the received signature
-if (!hash_equals($calculatedSignature, $signature)) {
-    // Log the failed verification data
-    $failedVerificationLog = __DIR__ . "/webhook-failed-verification-" . uniqid() . ".txt";
-    file_put_contents($failedVerificationLog, json_encode($logData, JSON_PRETTY_PRINT));
-
-    // Respond with 401 Unauthorized if the signature is invalid
-    http_response_code(401);
-    exit('Invalid webhook signature');
+// Step 3: Load the public key and verify the signature using OpenSSL
+$publicKeyResource = openssl_pkey_get_public($publicKey);
+if ($publicKeyResource === false) {
+    die('Invalid public key.');
 }
 
-// Process the webhook events after successful verification
-$events = json_decode($rawPayload, true);
+// Step 4: Use OpenSSL to verify the ECDSA signature
+$verification = openssl_verify($hashedPayload, $decodedSignature, $publicKeyResource, OPENSSL_ALGO_SHA256);
+
+if ($verification === 1) {
+    // Signature is valid
+    echo "Webhook signature is valid.";
+
+    // Process the webhook events
+    $events = json_decode($rawPayload, true);
+    foreach ($events as $event) {
+        // Your event processing code here...
+    }
+
+    // Respond with 200 OK
+    http_response_code(200);
+} elseif ($verification === 0) {
+    // Signature is invalid
+    http_response_code(401);
+    echo "Invalid webhook signature.";
+} else {
+    // Some error occurred during the verification process
+    http_response_code(500);
+    echo "Error during signature verification.";
+}
+
+// Clean up the public key resource
+openssl_free_key($publicKeyResource);
