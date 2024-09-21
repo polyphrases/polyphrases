@@ -18,26 +18,29 @@ $rawPayload = file_get_contents('php://input');
 $signature = $_SERVER['HTTP_X_TWILIO_EMAIL_EVENT_WEBHOOK_SIGNATURE'];
 $timestamp = $_SERVER['HTTP_X_TWILIO_EMAIL_EVENT_WEBHOOK_TIMESTAMP'];
 
-// Log the raw data, signature, and timestamp for debugging
-$logFile = __DIR__ . "/webhook-debug-" . uniqid() . ".txt";
-$logData = [
-    'signature' => $signature,
-    'timestamp' => $timestamp,
-    'payload' => $rawPayload
-];
-file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT));
-
-// Verify webhook signature using the public key
+// Get the verification key from environment variables
 $publicKey = $_ENV['SENDGRID_WEBHOOK_VERIFICATION_KEY'];
 $payload = $timestamp . $rawPayload;
 
-// Calculate the hash and compare it with the signature
+// Calculate the expected signature
 $calculatedSignature = base64_encode(hash_hmac('sha256', $payload, base64_decode($publicKey), true));
 
-// Compare the signature to ensure it's valid
+// Log the raw data, signature, timestamp, calculated signature, and verification key for debugging
+$logFile = __DIR__ . "/webhook-debug-" . uniqid() . ".txt";
+$logData = [
+    'received_signature' => $signature,
+    'timestamp' => $timestamp,
+    'payload' => $rawPayload,
+    'public_key' => $publicKey, // Log the verification key
+    'calculated_signature' => $calculatedSignature, // Log the calculated signature
+];
+file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT));
+
+// Compare the calculated signature to the received signature
 if (!hash_equals($calculatedSignature, $signature)) {
-    // Log the failed verification
-    file_put_contents(__DIR__ . "/webhook-failed-verification-" . uniqid() . ".txt", json_encode($logData, JSON_PRETTY_PRINT));
+    // Log the failed verification data
+    $failedVerificationLog = __DIR__ . "/webhook-failed-verification-" . uniqid() . ".txt";
+    file_put_contents($failedVerificationLog, json_encode($logData, JSON_PRETTY_PRINT));
 
     // Respond with 401 Unauthorized if the signature is invalid
     http_response_code(401);
