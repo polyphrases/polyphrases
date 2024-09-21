@@ -11,30 +11,42 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
-// Verify webhook signature
+// Get the raw input from the webhook
+$rawPayload = file_get_contents('php://input');
+
+// Extract the signature and timestamp from the headers
 $signature = $_SERVER['HTTP_X_TWILIO_EMAIL_EVENT_WEBHOOK_SIGNATURE'];
 $timestamp = $_SERVER['HTTP_X_TWILIO_EMAIL_EVENT_WEBHOOK_TIMESTAMP'];
 
-$publicKey = $_ENV['SENDGRID_WEBHOOK_VERIFICATION_KEY'];
-$payload = $timestamp . file_get_contents('php://input');
+// Log the raw data, signature, and timestamp for debugging
+$logFile = __DIR__ . "/webhook-debug-" . uniqid() . ".txt";
+$logData = [
+    'signature' => $signature,
+    'timestamp' => $timestamp,
+    'payload' => $rawPayload
+];
+file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT));
 
-// Verify signature using public key
-if (!hash_equals(base64_encode(hash_hmac('sha256', $payload, base64_decode($publicKey), true)), $signature)) {
+// Verify webhook signature using the public key
+$publicKey = $_ENV['SENDGRID_WEBHOOK_VERIFICATION_KEY'];
+$payload = $timestamp . $rawPayload;
+
+// Calculate the hash and compare it with the signature
+$calculatedSignature = base64_encode(hash_hmac('sha256', $payload, base64_decode($publicKey), true));
+
+// Compare the signature to ensure it's valid
+if (!hash_equals($calculatedSignature, $signature)) {
+    // Log the failed verification
+    file_put_contents(__DIR__ . "/webhook-failed-verification-" . uniqid() . ".txt", json_encode($logData, JSON_PRETTY_PRINT));
+
+    // Respond with 401 Unauthorized if the signature is invalid
     http_response_code(401);
     exit('Invalid webhook signature');
 }
 
-// Process the webhook events
-$events = json_decode(file_get_contents('php://input'), true);
+// Process the webhook events after successful verification
+$events = json_decode($rawPayload, true);
 
-//--------------- Create a unique filename using uniqid() and save the raw payload for debugging
-$uniqueId = uniqid('webhook-', true); // Generate unique ID
-$logFile = __DIR__ . "/$uniqueId.txt"; // Save file in the same directory as the script
-
-// Log the raw JSON payload into the file
-file_put_contents($logFile, json_encode($events, JSON_PRETTY_PRINT));
-
-// -------------- Process the events as before
 foreach ($events as $event) {
     $email = $event['email'];
     $eventType = $event['event'];
@@ -93,6 +105,6 @@ foreach ($events as $event) {
     }
 }
 
-// Send a 200 OK response
+// Send a 200 OK response after successful processing
 http_response_code(200);
 echo "Webhook processed successfully.";
