@@ -26,9 +26,15 @@ try {
     $logData['signature'] = $signature;
     $logData['timestamp'] = $timestamp;
 
-    // Public key from environment (in PEM format)
-    $publicKey = $_ENV['SENDGRID_WEBHOOK_VERIFICATION_KEY'];
-    $logData['publicKey'] = $publicKey;
+    // Public key from environment (Base64 format)
+    $base64PublicKey = $_ENV['SENDGRID_WEBHOOK_VERIFICATION_KEY'];
+
+    // Convert the Base64-encoded public key into PEM format
+    $pemFormattedKey = "-----BEGIN PUBLIC KEY-----\n" .
+        chunk_split($base64PublicKey, 64, "\n") .
+        "-----END PUBLIC KEY-----\n";
+
+    $logData['pemFormattedKey'] = $pemFormattedKey;
 
     // Step 1: Decode the Base64-encoded signature
     $decodedSignature = base64_decode($signature);
@@ -38,11 +44,11 @@ try {
     $hashedPayload = hash('sha256', $timestamp . $rawPayload, true);
     $logData['hashedPayload'] = bin2hex($hashedPayload); // Log binary hashed payload
 
-    // Step 3: Load the public key and verify the signature using OpenSSL
-    $publicKeyResource = openssl_pkey_get_public($publicKey);
+    // Step 3: Load the PEM-formatted public key and verify the signature using OpenSSL
+    $publicKeyResource = openssl_pkey_get_public($pemFormattedKey);
     if ($publicKeyResource === false) {
-        $logData['error'] = 'Invalid public key';
-        throw new Exception('Invalid public key.');
+        $logData['error'] = 'Invalid PEM public key';
+        throw new Exception('Invalid PEM public key.');
     }
 
     // Step 4: Use OpenSSL to verify the ECDSA signature
@@ -84,4 +90,3 @@ try {
     // Write the log data to the debug file
     file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT));
 }
-
