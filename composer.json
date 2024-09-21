@@ -5,6 +5,7 @@
     "sendgrid/sendgrid": "^8.1",
     "ext-pdo": "*",
     "ext-json": "*",
-    "ext-curl": "*"
+    "ext-curl": "*",
+    "ext-openssl": "*"
   }
 }
