@@ -12,81 +12,105 @@ try {
 }
 
 // Initialize logging
-$logFile = __DIR__ . "/webhook-debug-" . uniqid() . ".txt";
+$logFile = __DIR__ . "/webhook-log-" . uniqid() . ".txt";
 $logData = [];
 
 try {
-    // Get the raw payload and headers
+    // Get the raw payload from the webhook
     $rawPayload = file_get_contents('php://input');
-    $signature = $_SERVER['HTTP_X_TWILIO_EMAIL_EVENT_WEBHOOK_SIGNATURE'] ?? null;
-    $timestamp = $_SERVER['HTTP_X_TWILIO_EMAIL_EVENT_WEBHOOK_TIMESTAMP'] ?? null;
 
-    // Log raw payload, signature, and timestamp
+    // Log the raw payload
     $logData['rawPayload'] = $rawPayload;
-    $logData['signature'] = $signature;
-    $logData['timestamp'] = $timestamp;
 
-    // Public key from environment (Base64 format)
-    $base64PublicKey = $_ENV['SENDGRID_WEBHOOK_VERIFICATION_KEY'];
+    // Decode the JSON payload to process the event
+    $events = json_decode($rawPayload, true);
 
-    // Convert the Base64-encoded public key into PEM format
-    $pemFormattedKey = "-----BEGIN PUBLIC KEY-----\n" .
-        chunk_split($base64PublicKey, 64, "\n") .
-        "-----END PUBLIC KEY-----\n";
-
-    $logData['pemFormattedKey'] = $pemFormattedKey;
-
-    // Step 1: Decode the Base64-encoded signature
-    $decodedSignature = base64_decode($signature);
-    $logData['decodedSignature'] = bin2hex($decodedSignature); // Log binary signature
-
-    // Step 2: Hash the concatenation of timestamp + payload using SHA-256
-    $hashedPayload = hash('sha256', $timestamp . $rawPayload, true);
-    $logData['hashedPayload'] = bin2hex($hashedPayload); // Log binary hashed payload
-
-    // Step 3: Load the PEM-formatted public key and verify the signature using OpenSSL
-    $publicKeyResource = openssl_pkey_get_public($pemFormattedKey);
-    if ($publicKeyResource === false) {
-        $logData['error'] = 'Invalid PEM public key';
-        throw new Exception('Invalid PEM public key.');
-    }
-
-    // Step 4: Use OpenSSL to verify the ECDSA signature
-    $verification = openssl_verify($hashedPayload, $decodedSignature, $publicKeyResource, OPENSSL_ALGO_SHA256);
-    $logData['verification_result'] = $verification;
-
-    if ($verification === 1) {
-        // Signature is valid
-        $logData['verification_status'] = 'Signature is valid.';
-        echo "Webhook signature is valid.";
-
-        // Process the webhook events
-        $events = json_decode($rawPayload, true);
+    // Check if the payload was properly decoded
+    if ($events === null) {
+        // Log the decoding failure
+        $logData['result'] = 'Failed to decode JSON payload.';
+        http_response_code(400); // Bad Request
+        echo "Invalid JSON.";
+    } else {
+        // Process the events and update the database
         foreach ($events as $event) {
-            // Your event processing code here...
+            $email = $event['email'];
+            $eventType = $event['event'];
+
+            // Check if the subscriber exists
+            $stmt = $pdo->prepare("SELECT * FROM subscribers WHERE email = :email LIMIT 1");
+            $stmt->execute(['email' => $email]);
+            $subscriber = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($subscriber) {
+                $id = $subscriber['id'];
+
+                switch ($eventType) {
+                    case 'delivered':
+                        // Increment delivered counter
+                        $stmt = $pdo->prepare("UPDATE subscribers SET delivered = delivered + 1 WHERE id = :id");
+                        $stmt->execute(['id' => $id]);
+                        $logData['event'][] = "Delivered event processed for $email.";
+                        break;
+
+                    case 'open':
+                        // Increment opens counter
+                        $stmt = $pdo->prepare("UPDATE subscribers SET opens = opens + 1 WHERE id = :id");
+                        $stmt->execute(['id' => $id]);
+                        $logData['event'][] = "Open event processed for $email.";
+                        break;
+
+                    case 'click':
+                        // Increment clicks counter
+                        $stmt = $pdo->prepare("UPDATE subscribers SET clicks = clicks + 1 WHERE id = :id");
+                        $stmt->execute(['id' => $id]);
+                        $logData['event'][] = "Click event processed for $email.";
+                        break;
+
+                    case 'unsubscribe':
+                        // Set verified to 8
+                        $stmt = $pdo->prepare("UPDATE subscribers SET verified = 8 WHERE id = :id");
+                        $stmt->execute(['id' => $id]);
+                        $logData['event'][] = "Unsubscribe event processed for $email.";
+                        break;
+
+                    case 'spamreport':
+                        // Set verified to 9
+                        $stmt = $pdo->prepare("UPDATE subscribers SET verified = 9 WHERE id = :id");
+                        $stmt->execute(['id' => $id]);
+                        $logData['event'][] = "Spamreport event processed for $email.";
+                        break;
+
+                    case 'dropped':
+                        // Set verified to 7
+                        $stmt = $pdo->prepare("UPDATE subscribers SET verified = 7 WHERE id = :id");
+                        $stmt->execute(['id' => $id]);
+                        $logData['event'][] = "Dropped event processed for $email.";
+                        break;
+
+                    case 'bounce':
+                        // Set verified to 5
+                        $stmt = $pdo->prepare("UPDATE subscribers SET verified = 5 WHERE id = :id");
+                        $stmt->execute(['id' => $id]);
+                        $logData['event'][] = "Bounce event processed for $email.";
+                        break;
+                }
+            } else {
+                $logData['event'][] = "Subscriber with email $email not found.";
+            }
         }
 
-        // Respond with 200 OK
-        http_response_code(200);
-    } elseif ($verification === 0) {
-        // Signature is invalid
-        $logData['verification_status'] = 'Invalid signature.';
-        http_response_code(401);
-        echo "Invalid webhook signature.";
-    } else {
-        // Some error occurred during the verification process
-        $logData['verification_status'] = 'Error during signature verification.';
-        http_response_code(500);
-        echo "Error during signature verification.";
+        // Log the success
+        $logData['result'] = 'Webhook received and processed successfully.';
+        http_response_code(200); // OK
+        echo "Webhook received.";
     }
-
-    // Clean up the public key resource
-    openssl_free_key($publicKeyResource);
 } catch (Exception $e) {
-    $logData['exception'] = $e->getMessage();
-    http_response_code(500);
+    // Log any errors
+    $logData['error'] = $e->getMessage();
+    http_response_code(500); // Internal Server Error
     echo "An error occurred.";
 } finally {
-    // Write the log data to the debug file
+    // Write the log data to the log file
     file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT));
 }
