@@ -141,7 +141,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
         if ($_GET['action'] == 'unsubscribe') {
             if ($subscriber['verified']) {
                 if ($token === $expected_token) {
-                    $update_stmt = $pdo->prepare("UPDATE subscribers SET verified = 0 WHERE id = :id");
+                    $update_stmt = $pdo->prepare("UPDATE subscribers SET verified = 8 WHERE id = :id");
                     $update_stmt->execute([':id' => $subscriber['id']]);
                 }
             }
