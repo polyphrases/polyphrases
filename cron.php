@@ -76,6 +76,8 @@ foreach ($subscribers as $subscriber) {
 
     // Decide whether to send email
     $send_email = false;
+    $click_ratio = 0;
+    $open_ratio = 0;
 
     if ($delivered == 0) {
         // First email to this subscriber
