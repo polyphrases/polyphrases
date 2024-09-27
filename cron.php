@@ -110,7 +110,7 @@ foreach ($subscribers as $subscriber) {
         }
     }
 
-    echo "<br>Checking subscriber: " . $subscriber['id'] . " with opem ratio: " . $open_ratio . "% and click ratio: " . $click_ratio . "%... send?: " . ($send_email ? 'Yes' : 'No');
+    echo "\nChecking subscriber: " . $subscriber['id'] . " with opem ratio: " . $open_ratio . "% and click ratio: " . $click_ratio . "%... send?: " . ($send_email ? 'Yes' : 'No');
 
     if (!$send_email) {
         // Skip sending email to this subscriber
