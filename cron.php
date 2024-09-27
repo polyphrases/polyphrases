@@ -108,12 +108,12 @@ foreach ($subscribers as $subscriber) {
         }
     }
 
+    echo "<br>Checking subscriber: " . $subscriber['id'] . " with opem ratio: " . $open_ratio . "% and click ratio: " . $click_ratio . "%... send?: " . ($send_email ? 'Yes' : 'No');
+
     if (!$send_email) {
         // Skip sending email to this subscriber
         continue;
     }
-
-    echo "<br>Sending email to: " . $subscriber['id'];
 
     $message = "<h1 style='color: $emailColor;'>Today's Phrase</h1>
     <p style='font-size:16px;padding:15px;background-color:$emailColor;color:#FFF;border-radius:8px;'>"
