@@ -55,7 +55,17 @@ $hr_separator = '<hr style="margin: 2rem 0; border: none; border-top: 1px solid 
 
 foreach ($subscribers as $subscriber) {
     $email = $subscriber['email'];
+
+    // Validate email address
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        // Delete this subscriber
+        $delete_stmt = $pdo->prepare("DELETE FROM subscribers WHERE id = :id");
+        $delete_stmt->execute([':id' => $subscriber['id']]);
+        continue;
+    }
+
     echo "<br>Sending email to: " . $subscriber['id'];
+
     $message = "<h1 style='color: $emailColor;'>Today's Phrase</h1>
 
     <p style='font-size:16px;padding:15px;background-color:$emailColor;color:#FFF;border-radius:8px;'>" . htmlspecialchars($phrase['phrase']) . "</p>" . $hr_separator;
@@ -103,7 +113,11 @@ foreach ($subscribers as $subscriber) {
     $subject = $phrase['phrase'];
     $encoded_subject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
 
+    try{
     send_email($email, $encoded_subject, $message);
+    } catch (Exception $e) {
+        echo 'Caught exception: ',  $e->getMessage(), "\n";
+    }
 
     // Update the subscriber's last_sent date to today
     $update_stmt = $pdo->prepare("UPDATE subscribers SET last_sent = :today WHERE id = :id");
