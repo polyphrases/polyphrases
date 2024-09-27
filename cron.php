@@ -55,6 +55,7 @@ $hr_separator = '<hr style="margin: 2rem 0; border: none; border-top: 1px solid 
 
 foreach ($subscribers as $subscriber) {
     $email = $subscriber['email'];
+    echo "<br>Sending email to: " . $subscriber['id'];
     $message = "<h1 style='color: $emailColor;'>Today's Phrase</h1>
 
     <p style='font-size:16px;padding:15px;background-color:$emailColor;color:#FFF;border-radius:8px;'>" . htmlspecialchars($phrase['phrase']) . "</p>" . $hr_separator;
