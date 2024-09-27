@@ -37,7 +37,8 @@ if ($result->rowCount() > 0) {
         "Deutsch: $german\n\n" .
         "Português: $portuguese\n\n" .
         "Norsk: $norwegian\n\n" .
-        "#polygloths #languages #languagescomparison";
+        "Listen to the pronunciation at polyphrases.com\n\n" .
+        "#polygloths #languages";
 
     // Upload to Instagram
     $response = uploadToInstagram($imagePath, $caption, INSTAGRAM_ACCESS_TOKEN, $_ENV['INSTAGRAM_USER_ID']);

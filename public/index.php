@@ -12,8 +12,29 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
+// Session
+session_start();
+if (!isset($_SESSION['visit_comes_from'])) {
+    $_SESSION['visit_comes_from'] = 'unknown';
+}
+
+// Does the visit come from an email link
+if (isset($_GET['from']) and $_GET['from'] === 'email') {
+    $_SESSION['visit_comes_from'] = 'email';
+}
+
+// Does the visit come from a whatsapp link
+if (isset($_GET['from']) and $_GET['from'] === 'whatsapp') {
+    $_SESSION['visit_comes_from'] = 'whatsapp';
+}
+
 // View
 $view = 'default_view';
+
+// Any forced section to visit?
+if (isset($_GET['do']) && $_GET['do'] === 'subscribe') {
+    $view = 'subscribe';
+}
 
 if (isset($_GET['phrase'])) {
     // Check if it is a valid Y-m-d date
@@ -35,7 +56,7 @@ if (isset($_GET['phrase'])) {
 }
 
 // Handle form submission
-if ($view === 'default_view' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) && isset($_POST['g-recaptcha-response']) && is_recaptcha_token_verification_successful($_POST['g-recaptcha-response'])) {
+if ($view === 'subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) && isset($_POST['g-recaptcha-response']) && is_recaptcha_token_verification_successful($_POST['g-recaptcha-response'])) {
     $email = $_POST['email'];
     $languages = ['spanish', 'german', 'italian', 'french', 'portuguese', 'norwegian'];
     $last_sent = date('Y-m-d', strtotime('-1 day'));
@@ -78,11 +99,11 @@ if ($view === 'default_view' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($
         $subscriber_id = $subscriber ? $subscriber['id'] : null;
 
         $token = generateToken($subscriber_id, $email);
-        $verification_link = $_ENV['SITE_URL'] . '/?email=' . urlencode($email) . '&token=' . urlencode($token) . '&action=verify';
+        $verification_link = $_ENV['SITE_URL'] . '/?email=' . urlencode($email) . '&token=' . urlencode($token) . '&action=verify&from=email';
 
         $welcome_email = '<h1>Thanks for joining Poly Phrases!</h1>
         <p>Please confirm your email clicking the link below, in order to start receiving your daily multilingual phrases:</p>
-        <p><a href="' . $verification_link . '" style="background-color:#1b74e4;text-decoration:none;display:inline-block;padding:10px 16px;border-radius:5px;font-size: 16px;font-family:Helvetica,sans-serif;font-weight:bold;color:#FFFFFF;line-height:16px;">Confirm&nbsp;now</a></p><p>You will enjoy the daily phrases :)</p><hr>
+        <p><a href="' . $verification_link . '" style="background-color:#1b74e4;text-decoration:none;display:inline-block;padding:10px 16px;border-radius:5px;font-size: 16px;font-family:Helvetica,sans-serif;font-weight:bold;color:#FFFFFF;line-height:16px;">Confirm&nbsp;now</a></p><p>You will enjoy the daily phrases, hope you learn something useful every day! :)</p><hr>
         <p style="margin-top:30px;font-size:11px;color:#555;">30 N Gould St Ste N, Sheridan, WY 82801</p>';
 
         // Send verification email (Use your own mail function or mail library)
@@ -120,7 +141,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
         if ($_GET['action'] == 'unsubscribe') {
             if ($subscriber['verified']) {
                 if ($token === $expected_token) {
-                    $update_stmt = $pdo->prepare("UPDATE subscribers SET verified = 0 WHERE id = :id");
+                    $update_stmt = $pdo->prepare("UPDATE subscribers SET verified = 8 WHERE id = :id");
                     $update_stmt->execute([':id' => $subscriber['id']]);
                 }
             }
@@ -137,7 +158,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
-    $page_og_image = '/assets/languages-daily-phrase.jpg';
+    $page_og_image = '/assets/polyphrases.webp';
     $page_og_title = 'Poly Phrases';
     switch ($view) {
         case 'view_phrase':
@@ -154,6 +175,10 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
         case 'verification_completed':
             $page_title = '- Email verified';
             break;
+        case 'subscribe':
+            $page_title = '- Subscribe';
+            echo '<script src="https://www.google.com/recaptcha/api.js"></script>';
+            break;
         case 'unsubscribed':
             $page_title = '- Unsubscribed';
             break;
@@ -161,15 +186,14 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
             $page_title = '- Error';
             break;
         default:
-            $page_title = 'via E-mail | Practice your languages!';
-            echo '<script src="https://www.google.com/recaptcha/api.js"></script>';
+            $page_title = ' | Practice your languages!';
     }
     ?>
     <title>Poly Phrases <?php echo $page_title; ?></title>
     <meta property="og:title" content="<?php echo $page_og_title; ?>">
     <meta property="og:description"
           content="Subscribe to receive daily phrases in various languages to boost your language skills. Simple, free, and effective learning experience.">
-    <meta property="og:image" content="<?php echo $page_og_image; ?>">
+    <meta property="og:image" content="https://polyphrases.com<?php echo $page_og_image; ?>">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Poly Phrases">
     <link rel="icon" href="/assets/icon.png" type="image/png">
@@ -178,10 +202,18 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XP2B88NNS7"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
         gtag('js', new Date());
         gtag('config', 'G-XP2B88NNS7');
-        gtag('config', 'AW-16666605491');
+        gtag('event', 'visit_source', {
+            'event_category': 'Visit Source',
+            'event_label': '<?php echo $_SESSION['visit_comes_from']; ?>',
+            'value': 1
+        });
     </script>
 </head>
 <body>
@@ -197,6 +229,9 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
         case 'verification_completed':
             include 'parts/verification_complete.php';
             break;
+        case 'subscribe':
+            include 'parts/subscribe.php';
+            break;
         case 'unsubscribed':
             include 'parts/unsubscribed.php';
             break;
@@ -210,54 +245,93 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
 </main>
 <aside>
     <?php
-    // Pick 5 random phrases
-    if ($view === 'view_phrase') {
-        $stmt = $pdo->prepare("SELECT * FROM phrases WHERE imaged=1 and date<CURDATE() and date!=:date ORDER BY RAND() LIMIT 4");
-        $stmt->bindParam(':date', $_GET['phrase']);
-    } else {
-        $stmt = $pdo->prepare("SELECT * FROM phrases WHERE imaged=1 and date<CURDATE() ORDER BY RAND() LIMIT 4");
-    }
-    $stmt->execute();
-    $phrases = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $views_without_aside = ['sent_link', 'subscribe'];
+    if (!in_array($view, $views_without_aside)) {
+        // Pick 5 random phrases
+        if ($view === 'view_phrase') {
+            $stmt = $pdo->prepare("SELECT * FROM phrases WHERE imaged=1 and date<CURDATE() and date!=:date ORDER BY RAND() LIMIT 4");
+            $stmt->bindParam(':date', $_GET['phrase']);
+        } else {
+            $stmt = $pdo->prepare("SELECT * FROM phrases WHERE imaged=1 and date<CURDATE() ORDER BY RAND() LIMIT 4");
+        }
+        $stmt->execute();
+        $phrases = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Randomize the position and size of the phrases
-    $randomization_power = [
-        [
-            'top:' . rand(3, 6) . '%',
-            'right:' . rand(3, 7) . '%',
-            'width:' . rand(210, 280) . 'px'
-        ],
-        [
-            'bottom:' . rand(3, 8) . '%',
-            'right:' . rand(3, 7) . '%',
-            'width:' . rand(205, 260) . 'px'
-        ],
-        [
-            'bottom:' . rand(3, 6) . '%',
-            'left:' . rand(3, 7) . '%',
-            'width:' . rand(210, 285) . 'px'
-        ],
-        [
-            'top:' . rand(3, 8) . '%',
-            'left:' . rand(3, 7) . '%',
-            'width:' . rand(206, 275) . 'px'
-        ]
-    ];
+        // Randomize the position and size of the phrases
+        $randomization_power = [
+            [
+                'top:' . rand(3, 6) . '%',
+                'right:' . rand(3, 7) . '%',
+                'width:' . rand(210, 280) . 'px'
+            ],
+            [
+                'bottom:' . rand(3, 8) . '%',
+                'right:' . rand(3, 7) . '%',
+                'width:' . rand(205, 260) . 'px'
+            ],
+            [
+                'bottom:' . rand(3, 6) . '%',
+                'left:' . rand(3, 7) . '%',
+                'width:' . rand(210, 285) . 'px'
+            ],
+            [
+                'top:' . rand(3, 8) . '%',
+                'left:' . rand(3, 7) . '%',
+                'width:' . rand(206, 275) . 'px'
+            ]
+        ];
 
-    // Display the phrases
-    $i = 0;
-    foreach ($phrases as $phrase) {
-        $languages = ['phrase', 'spanish', 'german', 'italian', 'french', 'portuguese', 'norwegian'];
-        echo '
+        // Display the phrases
+        $i = 0;
+        foreach ($phrases as $phrase) {
+            $languages = ['phrase', 'spanish', 'german', 'italian', 'french', 'portuguese', 'norwegian'];
+            echo '
         <div class="example-phrase" style="' . implode(';', $randomization_power[$i]) . '">
             <a href="/' . $phrase['date'] . '"><figure>
                 <img src="/images/' . $phrase['date'] . '.jpg" alt="Day ' . $phrase['phrase'] . '">
                 <figcaption><span>' . $phrase[$languages[array_rand($languages)]] . '</span></figcaption>
             </figure></a>
         </div>';
-        $i++;
+            $i++;
+        }
     }
     ?>
 </aside>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const mainElement = document.querySelector('main');
+        const asideElement = document.querySelector('aside');
+
+        // Make sure both elements exist
+        if (!mainElement || !asideElement) {
+            return;
+        }
+
+        mainElement.addEventListener('scroll', function () {
+            const scrollTop = mainElement.scrollTop;
+            const scrollHeight = mainElement.scrollHeight - mainElement.clientHeight;
+            const scrollPercentage = scrollTop / scrollHeight;
+
+            // Calculate the new opacity (0.2 to 0.9)
+            const newOpacity = 0.2 + (0.7 * scrollPercentage);
+
+            // Update the overlay's background color directly using a new style rule
+            const style = document.createElement('style');
+            style.innerHTML = `
+                aside::after{
+                    background: rgba(0, 0, 0, ${newOpacity});
+                }
+            `;
+
+            // Remove any previously added styles
+            const existingStyle = document.querySelector('#dynamic-style');
+            if (existingStyle) existingStyle.remove();
+
+            // Add the new style
+            style.id = 'dynamic-style';
+            document.head.appendChild(style);
+        });
+    });
+</script>
 </body>
 </html>

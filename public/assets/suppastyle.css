@@ -10,6 +10,19 @@ aside {
     grid-template-columns: 1fr;
     padding: 1rem;
     gap: 1rem;
+    z-index: 1;
+}
+
+aside::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    z-index: 1;
 }
 
 main {
@@ -18,6 +31,7 @@ main {
     padding: 3rem;
     width: 100%;
     box-sizing: border-box;
+    z-index: 2;
 }
 
 .example-phrase {
@@ -111,7 +125,7 @@ hr {
 }
 
 .button {
-    background-color: #007bff;
+    background-color: #25d366;
     color: #ffffff;
     border: none;
     border-radius: 4px;
@@ -123,12 +137,76 @@ hr {
 }
 
 .button:hover {
-    background-color: #0056b3;
+    background-color: #075e54;
 }
 
 .button:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(38, 143, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(30, 30, 30, 0.4);
+}
+
+.phrase-viewer header {
+    position: relative;
+    padding: 0;
+    text-align: center;
+    margin: 0 0 2rem;
+}
+
+.phrase-viewer figure.image,
+.phrase-viewer .image img {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+}
+
+.phrase-viewer a {
+    text-decoration: none;
+}
+
+.phrase-viewer a h1 {
+    margin-bottom: 0.6rem;
+    color: #222;
+    letter-spacing: 0.15rem;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+}
+
+.phrase-viewer a:hover h1 {
+    color: #000;
+}
+
+.phrase-viewer h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 100;
+    color: #999;
+}
+
+.phrase-viewer h3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.phrase-viewer .play-button {
+    font-size: 20px;
+    padding: 0;
+    background: none;
+    border: none;
+    outline: none;
+    opacity: 0.5;
+    cursor: pointer;
+    margin-left: 5px;
+    vertical-align: middle;
+    transition: opacity 0.2s;
+}
+
+.phrase-viewer .play-button:hover, .play-button:active {
+    opacity: 1;
 }
 
 footer {
@@ -165,6 +243,10 @@ footer a {
 @media (max-width: 650px) {
     aside .example-phrase {
         width: 100% !important;
+    }
+
+    aside::after {
+        display: none;
     }
 }
 

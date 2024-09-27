@@ -4,6 +4,23 @@ require __DIR__ . '/includes/functions.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
+// Define a color variable for the email
+$colors = array(
+    '#0099e5',
+    '#ff4c4c',
+    '#00a98f',
+    '#be0027',
+    '#371777',
+    '#008374',
+    '#037ef3',
+    '#f85a40',
+    '#0cb9c1',
+    '#f48924',
+    '#da1884',
+    '#a51890'
+);
+$emailColor = $colors[array_rand($colors)];
+
 // Establish a database connection
 try {
     $pdo = new PDO("mysql:host=" . $_ENV['DB_HOST'] . ";dbname=" . $_ENV['DB_NAME'] . ";charset=utf8mb4", $_ENV['DB_USER'], $_ENV['DB_PASS']);
@@ -34,11 +51,13 @@ if (!$subscribers) {
     exit;
 }
 
+$hr_separator = '<hr style="margin: 2rem 0; border: none; border-top: 1px solid #ddd;">';
+
 foreach ($subscribers as $subscriber) {
     $email = $subscriber['email'];
-    $message = "<h1 style='color: #004574;'>Today's Phrase</h1>
+    $message = "<h1 style='color: $emailColor;'>Today's Phrase</h1>
 
-    <p style='font-size:16px;padding:15px;background-color:#004574;color:#FFF;border-radius:8px;'>" . htmlspecialchars($phrase['phrase']) . "</p><hr>";
+    <p style='font-size:16px;padding:15px;background-color:$emailColor;color:#FFF;border-radius:8px;'>" . htmlspecialchars($phrase['phrase']) . "</p>" . $hr_separator;
 
     // Add translations based on subscriber's preferences
     if ($subscriber['spanish']) {
@@ -60,22 +79,24 @@ foreach ($subscribers as $subscriber) {
         $message .= "<p><strong>Norwegian:</strong> " . htmlspecialchars($phrase['norwegian']) . "</p>";
     }
 
-    $message .= "<hr><p><i>Don't just ignore this. Take your time to learn the new vocabulary, a small step a day makes wonders!</i></p>";
+    $message .= '<p style="text-align:center;padding:20px;"><a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email" style="display:inline-block;background-color:#fff;text-decoration:none;display:inline-block;padding:10px 16px;border-radius:5px;border:3px solid ' . $emailColor . ';font-size: 16px;font-family:Helvetica,sans-serif;font-weight:bold;color:' . $emailColor . ';line-height:16px;">Listen to the pronunciation ▶️</a></p>';
+
+    $message .= $hr_separator . "<p><i>Don't just ignore this. Take your time to learn the new vocabulary, a small step a day makes wonders!</i></p>";
 
     // Add image if exists
     $image_path = __DIR__ . '/public/images/' . $phrase['date'] . '.jpg';
     if (file_exists($image_path)) {
         $message .= "
-        <img src='" . $_ENV['SITE_URL'] . '/images/' . $phrase['date'] . '.jpg' . "' alt='Image' style='width:500px;max-width:100%;height:auto;border-radius:8px;'>";
+        <img src='" . $_ENV['SITE_URL'] . '/images/' . $phrase['date'] . '.jpg' . "' alt='Descriptive image for this phrase' style='width:500px;max-width:100%;height:auto;border-radius:8px;'>";
     }
 
     // Generate the unsubscribe link
     $unsubscribe_token = generateToken($subscriber['id'], $email);
     $unsubscribe_link = $_ENV['SITE_URL'] . '/?email=' . urlencode($email) . '&token=' . urlencode($unsubscribe_token) . '&action=unsubscribe';
 
-    $message .= "<hr>
-    <p>Poly Phrases | Day: <i>" . $today . "</i></p>
-    <p style='margin-top:30px;font-size:11px;color:#555;'>30 N Gould St Ste N, Sheridan, WY 82801 - <a href='" . $unsubscribe_link . "' title='Unsubscribe from Poly Phrases'>Unsubscribe</a></p>";
+    $message .= $hr_separator .'
+    <p>Poly Phrases | Day: <i>' . $today . '</i></p>
+    <p style="margin-top:30px;font-size:11px;color:#555;">30 N Gould St Ste N, Sheridan, WY 82801 - <a href="' . $unsubscribe_link . '" title="Unsubscribe from Poly Phrases">Unsubscribe</a></p>';
 
     // Send the email (Use your own mail function or mail library)
     $subject = $phrase['phrase'];
