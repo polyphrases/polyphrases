@@ -112,5 +112,5 @@ try {
     echo "An error occurred.";
 } finally {
     // Write the log data to the log file
-    file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT));
+    // file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT));
 }
