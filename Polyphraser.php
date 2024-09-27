@@ -62,7 +62,7 @@ class Polyphraser
 
     private function fetchRandomExamples()
     {
-        $stmt = $this->pdo->prepare("SELECT phrase FROM phrases ORDER BY RAND() LIMIT :numExamples");
+        $stmt = $this->pdo->prepare("SELECT phrase FROM phrases WHERE date < CURDATE() ORDER BY RAND() LIMIT :numExamples");
         $stmt->bindValue(':numExamples', $this->numExamples, \PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
@@ -86,7 +86,7 @@ class Polyphraser
                     "content" => "Based on those examples, give me another phrase in " . $tense . " tense."
                 ],
             ],
-            'temperature' => 0.7,
+            'temperature' => 0.9,
             'max_tokens' => 100,
             'frequency_penalty' => 0.5,
             'presence_penalty' => 0.7,
