@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/includes/functions.php';
+
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
@@ -23,7 +24,11 @@ $emailColor = $colors[array_rand($colors)];
 
 // Establish a database connection
 try {
-    $pdo = new PDO("mysql:host=" . $_ENV['DB_HOST'] . ";dbname=" . $_ENV['DB_NAME'] . ";charset=utf8mb4", $_ENV['DB_USER'], $_ENV['DB_PASS']);
+    $pdo = new PDO(
+        "mysql:host=" . $_ENV['DB_HOST'] . ";dbname=" . $_ENV['DB_NAME'] . ";charset=utf8mb4",
+        $_ENV['DB_USER'],
+        $_ENV['DB_PASS']
+    );
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
@@ -64,11 +69,55 @@ foreach ($subscribers as $subscriber) {
         continue;
     }
 
+    // Calculate engagement ratios
+    $delivered = $subscriber['delivered'];
+    $opens = $subscriber['opens'];
+    $clicks = $subscriber['clicks'];
+
+    // Decide whether to send email
+    $send_email = false;
+
+    if ($delivered == 0) {
+        // First email to this subscriber
+        $send_email = true;
+    } else {
+        // Avoid division by zero
+        $click_ratio = ($clicks / $delivered) * 100;
+        $open_ratio = ($opens / $delivered) * 100;
+
+        if ($click_ratio > 70) {
+            // Always send
+            $send_email = true;
+        } else {
+            if ($open_ratio > 50) {
+                // Send randomly in 70% of cases
+                if (mt_rand(1, 100) <= 70) {
+                    $send_email = true;
+                }
+            } elseif ($open_ratio > 20) {
+                // Send randomly in 40% of cases
+                if (mt_rand(1, 100) <= 40) {
+                    $send_email = true;
+                }
+            } else {
+                // Send randomly in 10% of cases
+                if (mt_rand(1, 100) <= 10) {
+                    $send_email = true;
+                }
+            }
+        }
+    }
+
+    if (!$send_email) {
+        // Skip sending email to this subscriber
+        continue;
+    }
+
     echo "<br>Sending email to: " . $subscriber['id'];
 
     $message = "<h1 style='color: $emailColor;'>Today's Phrase</h1>
-
-    <p style='font-size:16px;padding:15px;background-color:$emailColor;color:#FFF;border-radius:8px;'>" . htmlspecialchars($phrase['phrase']) . "</p>" . $hr_separator;
+    <p style='font-size:16px;padding:15px;background-color:$emailColor;color:#FFF;border-radius:8px;'>"
+        . htmlspecialchars($phrase['phrase']) . "</p>" . $hr_separator;
 
     // Add translations based on subscriber's preferences
     if ($subscriber['spanish']) {
@@ -90,33 +139,47 @@ foreach ($subscribers as $subscriber) {
         $message .= "<p><strong>Norwegian:</strong> " . htmlspecialchars($phrase['norwegian']) . "</p>";
     }
 
-    $message .= '<p style="text-align:center;padding:20px;"><a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email" style="display:inline-block;background-color:#fff;text-decoration:none;display:inline-block;padding:10px 16px;border-radius:5px;border:3px solid ' . $emailColor . ';font-size: 16px;font-family:Helvetica,sans-serif;font-weight:bold;color:' . $emailColor . ';line-height:16px;">Listen to the pronunciation ▶️</a></p>';
+    $message .= '<p style="text-align:center;padding:20px;">
+        <a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email" style="
+            display:inline-block;
+            background-color:#fff;
+            text-decoration:none;
+            padding:10px 16px;
+            border-radius:5px;
+            border:3px solid ' . $emailColor . ';
+            font-size:16px;
+            font-family:Helvetica,sans-serif;
+            font-weight:bold;
+            color:' . $emailColor . ';
+            line-height:16px;">Listen to the pronunciation ▶️</a></p>';
 
     $message .= $hr_separator . "<p><i>Don't just ignore this. Take your time to learn the new vocabulary, a small step a day makes wonders!</i></p>";
 
     // Add image if exists
     $image_path = __DIR__ . '/public/images/' . $phrase['date'] . '.jpg';
     if (file_exists($image_path)) {
-        $message .= "
-        <img src='" . $_ENV['SITE_URL'] . '/images/' . $phrase['date'] . '.jpg' . "' alt='Descriptive image for this phrase' style='width:500px;max-width:100%;height:auto;border-radius:8px;'>";
+        $message .= "<img src='" . $_ENV['SITE_URL'] . '/images/' . $phrase['date'] . '.jpg' . "' alt='Descriptive image for this phrase' style='width:500px;max-width:100%;height:auto;border-radius:8px;'>";
     }
 
     // Generate the unsubscribe link
     $unsubscribe_token = generateToken($subscriber['id'], $email);
     $unsubscribe_link = $_ENV['SITE_URL'] . '/?email=' . urlencode($email) . '&token=' . urlencode($unsubscribe_token) . '&action=unsubscribe';
 
-    $message .= $hr_separator .'
+    $message .= $hr_separator . '
     <p>Poly Phrases | Day: <i>' . $today . '</i></p>
-    <p style="margin-top:30px;font-size:11px;color:#555;">30 N Gould St Ste N, Sheridan, WY 82801 - <a href="' . $unsubscribe_link . '" title="Unsubscribe from Poly Phrases">Unsubscribe</a></p>';
+    <p style="margin-top:30px;font-size:11px;color:#555;">
+        30 N Gould St Ste N, Sheridan, WY 82801 - 
+        <a href="' . $unsubscribe_link . '" title="Unsubscribe from Poly Phrases">Unsubscribe</a>
+    </p>';
 
     // Send the email (Use your own mail function or mail library)
     $subject = $phrase['phrase'];
     $encoded_subject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
 
-    try{
-    send_email($email, $encoded_subject, $message);
+    try {
+        send_email($email, $encoded_subject, $message);
     } catch (Exception $e) {
-        echo 'Caught exception: ',  $e->getMessage(), "\n";
+        echo 'Caught exception: ', $e->getMessage(), "\n";
     }
 
     // Update the subscriber's last_sent date to today
