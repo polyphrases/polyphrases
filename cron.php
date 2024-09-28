@@ -105,7 +105,7 @@ foreach ($subscribers as $subscriber) {
         }
     }
 
-    echo "\nChecking subscriber: " . $subscriber['id'] . " with opem ratio: " . $open_ratio . "% (opens: " . $opens . " of " . $delivered . " delivered) and click ratio: " . $click_ratio . "% (clicks: " . $clicks . " of " . $delivered . " delivered) --> Send?: " . ($send_email ? 'Yes' : 'No');
+    echo "\nChecking subscriber: " . $subscriber['id'] . " with open ratio: " . $open_ratio . "% (" . $opens . " of " . $delivered . ") and click ratio: " . $click_ratio . "% (" . $clicks . " of " . $delivered . ") --> Send?: " . ($send_email ? 'Yes' : 'No');
 
     $message = "<h1 style='color: $emailColor;'>Today's Phrase</h1>
     <p style='font-size:16px;padding:15px;background-color:$emailColor;color:#FFF;border-radius:8px;'>"
