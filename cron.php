@@ -76,16 +76,19 @@ foreach ($subscribers as $subscriber) {
 
     // Decide whether to send email
     $send_email = false;
-    $click_ratio = 0;
-    $open_ratio = 0;
+
+    if ($delivered == 0) {
+        $click_ratio = 0;
+        $open_ratio = 0;
+    } else {
+        $click_ratio = ($clicks / $delivered) * 100;
+        $open_ratio = ($opens / $delivered) * 100;
+    }
 
     if ($delivered < 6) {
         // Always send up to 5 emails at least
         $send_email = true;
     } else {
-        $click_ratio = ($clicks / $delivered) * 100;
-        $open_ratio = ($opens / $delivered) * 100;
-
         if ($click_ratio > 50) {
             $send_email = true;
         } else {
