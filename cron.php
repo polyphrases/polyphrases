@@ -89,7 +89,7 @@ foreach ($subscribers as $subscriber) {
         if ($click_ratio > 50) {
             $send_email = true;
         } else {
-            if ($open_ratio > 60) {
+            if ($open_ratio > 65) {
                 $send_email = true;
             } elseif ($open_ratio > 40) {
                 // Send randomly in 80% of cases
@@ -97,8 +97,8 @@ foreach ($subscribers as $subscriber) {
                     $send_email = true;
                 }
             } else {
-                // Send randomly in 10% of cases
-                if (mt_rand(1, 100) <= 10) {
+                // Send randomly in 5% of cases
+                if (mt_rand(1, 100) <= 5) {
                     $send_email = true;
                 }
             }
