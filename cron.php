@@ -79,8 +79,8 @@ foreach ($subscribers as $subscriber) {
     $click_ratio = 0;
     $open_ratio = 0;
 
-    if ($delivered == 0) {
-        // First email to this subscriber
+    if ($delivered < 6) {
+        // Always send up to 5 emails at least
         $send_email = true;
     } else {
         $click_ratio = ($clicks / $delivered) * 100;
