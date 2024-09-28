@@ -107,11 +107,6 @@ foreach ($subscribers as $subscriber) {
 
     echo "\nChecking subscriber: " . $subscriber['id'] . " with opem ratio: " . $open_ratio . "% and click ratio: " . $click_ratio . "%... send?: " . ($send_email ? 'Yes' : 'No');
 
-    if (!$send_email) {
-        // Skip sending email to this subscriber
-        continue;
-    }
-
     $message = "<h1 style='color: $emailColor;'>Today's Phrase</h1>
     <p style='font-size:16px;padding:15px;background-color:$emailColor;color:#FFF;border-radius:8px;'>"
         . htmlspecialchars($phrase['phrase']) . "</p>" . $hr_separator;
@@ -173,13 +168,15 @@ foreach ($subscribers as $subscriber) {
     $subject = $phrase['phrase'];
     $encoded_subject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
 
-    try {
-        send_email($email, $encoded_subject, $message);
-    } catch (Exception $e) {
-        echo 'Caught exception: ', $e->getMessage(), "\n";
+    if ($send_email) {
+        try {
+            send_email($email, $encoded_subject, $message);
+        } catch (Exception $e) {
+            echo 'Caught exception: ', $e->getMessage(), "\n";
+        }
     }
 
-    // Update the subscriber's last_sent date to today
+    // Update the subscriber's last_sent date to today even if decided to not send (avoid recalculating ratios today)
     $update_stmt = $pdo->prepare("UPDATE subscribers SET last_sent = :today WHERE id = :id");
     $update_stmt->execute([':today' => $today, ':id' => $subscriber['id']]);
 }
