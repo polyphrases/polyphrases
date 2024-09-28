@@ -83,22 +83,17 @@ foreach ($subscribers as $subscriber) {
         // First email to this subscriber
         $send_email = true;
     } else {
-        // Avoid division by zero
         $click_ratio = ($clicks / $delivered) * 100;
         $open_ratio = ($opens / $delivered) * 100;
 
-        if ($click_ratio > 70) {
-            // Always send
+        if ($click_ratio > 50) {
             $send_email = true;
         } else {
-            if ($open_ratio > 50) {
-                // Send randomly in 70% of cases
-                if (mt_rand(1, 100) <= 70) {
-                    $send_email = true;
-                }
-            } elseif ($open_ratio > 20) {
-                // Send randomly in 40% of cases
-                if (mt_rand(1, 100) <= 40) {
+            if ($open_ratio > 60) {
+                $send_email = true;
+            } elseif ($open_ratio > 40) {
+                // Send randomly in 80% of cases
+                if (mt_rand(1, 100) <= 80) {
                     $send_email = true;
                 }
             } else {
