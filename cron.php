@@ -85,27 +85,8 @@ foreach ($subscribers as $subscriber) {
         $open_ratio = ($opens / $delivered) * 100;
     }
 
-    if ($delivered < 6) {
-        // Always send up to 5 emails at least
+    if ($delivered < 3 || $click_ratio > 49 || $open_ratio > 65 || ($open_ratio > 35 && mt_rand(1, 100) <= 70)) {
         $send_email = true;
-    } else {
-        if ($click_ratio > 50) {
-            $send_email = true;
-        } else {
-            if ($open_ratio > 65) {
-                $send_email = true;
-            } elseif ($open_ratio > 40) {
-                // Send randomly in 80% of cases
-                if (mt_rand(1, 100) <= 80) {
-                    $send_email = true;
-                }
-            } else {
-                // Send randomly in 5% of cases
-                if (mt_rand(1, 100) <= 5) {
-                    $send_email = true;
-                }
-            }
-        }
     }
 
     echo "\nChecking subscriber: " . $subscriber['id'] . " with open ratio: " . $open_ratio . "% (" . $opens . " of " . $delivered . ") and click ratio: " . $click_ratio . "% (" . $clicks . " of " . $delivered . ") --> Send?: " . ($send_email ? 'Yes' : 'No');
