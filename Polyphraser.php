@@ -71,7 +71,7 @@ class Polyphraser
     private function generateCreativePhrase($examples)
     {
         $examplesText = implode("\n- ", $examples);
-        $temporalTenses = ["present tense, but be original in the usage of the present tense, don't just do a simple \'now I am\' kind of present", "past tense, but don't start it with a simple last day, last week, last whatever, yesterday... be original in the usage of the past tense without overdoing it", "future tense, but don't start it with a simple next day, next week, next whatever, be original in the usage of the future tense without overdoing it"];
+        $temporalTenses = ["present tense, but be original in the usage of the present tense, don't just do a simple 'now I am' kind of present", "past tense, but don't start it with a simple last day, in the past, last week, last whatever, yesterday... be original in the usage of the past tense without overdoing it", "future tense, but don't start it with a simple next day, in the future, next week, next whatever, be original in the usage of the future tense without overdoing it"];
         $tense = $temporalTenses[array_rand($temporalTenses)];
 
         $response = $this->openAi->chat([
@@ -79,7 +79,7 @@ class Polyphraser
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => "You are a creative assistant who generates interesting funny phrases for language practice. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
+                    "content" => "You are a creative assistant who generates interesting funny phrases for language practice. The sentence should surprise and amuse. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
                 ],
                 [
                     "role" => "user",
