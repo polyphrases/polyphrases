@@ -85,8 +85,18 @@ foreach ($subscribers as $subscriber) {
         $open_ratio = ($opens / $delivered) * 100;
     }
 
-    if ($delivered < 3 || $click_ratio > 49 || $open_ratio > 65 || ($open_ratio > 35 && mt_rand(1, 100) <= 70)) {
+    // Do we really wanna send to this person?
+    if ($delivered < 3 || $click_ratio > 49 || $open_ratio > 65) {
         $send_email = true;
+    } else {
+        if ($open_ratio > 35) {
+            if (mt_rand(1, 100) <= 70) {
+                $send_email = true;
+            }
+        } else {
+            $stmt = $pdo->prepare("UPDATE subscribers SET verified = 6 WHERE id = :id");
+            $stmt->execute(['id' => $subscriber['id']]);
+        }
     }
 
     echo "\nChecking subscriber: " . $subscriber['id'] . " with open ratio: " . $open_ratio . "% (" . $opens . " of " . $delivered . ") and click ratio: " . $click_ratio . "% (" . $clicks . " of " . $delivered . ") --> Send?: " . ($send_email ? 'Yes' : 'No');
