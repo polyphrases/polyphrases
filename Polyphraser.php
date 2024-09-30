@@ -79,11 +79,11 @@ class Polyphraser
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => "You are a creative assistant who generates humorous and imaginative phrases for language practice. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
+                    "content" => "You are a creative assistant who generates interesting funny phrases for language practice. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
                 ],
                 [
                     "role" => "user",
-                    "content" => "Based on those examples, give me another phrase in " . $tense . ". Be authentic, mildly philosophical, unexpectedly humorous, but keep the phrase coherent and not loo long."
+                    "content" => "Based on those examples, give me another phrase in " . $tense . ". Be authentic, unexpectedly humorous like the examples, but keep the phrase coherent and not loo long."
                 ],
             ],
             'temperature' => 0.9,
