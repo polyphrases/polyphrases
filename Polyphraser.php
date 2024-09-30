@@ -16,7 +16,7 @@ class Polyphraser
     private $environment;
     private $debugLog = [];
 
-    public function __construct($openAiApiKey, $dbConfig, $numExamples = 25, $adminEmail = '', $environment = 'development')
+    public function __construct($openAiApiKey, $dbConfig, $numExamples = 20, $adminEmail = '', $environment = 'development')
     {
         $this->openAi = new OpenAi($openAiApiKey);
         $this->numExamples = $numExamples;
@@ -79,11 +79,11 @@ class Polyphraser
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => "You are a creative assistant who generates humorous, absurd, and imaginative phrases for language practice. Use unique combinations of everyday objects, activities, and professions to make the phrases fun and surprising, yet linguistically coherent. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
+                    "content" => "You are a creative assistant who generates humorous and imaginative phrases for language practice. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
                 ],
                 [
                     "role" => "user",
-                    "content" => "Based on those examples, give me another phrase in " . $tense . " tense."
+                    "content" => "Based on those examples, give me another phrase in " . $tense . " tense. Be authentic, creative, and humorous."
                 ],
             ],
             'temperature' => 0.9,
@@ -91,10 +91,11 @@ class Polyphraser
             'frequency_penalty' => 0.5,
             'presence_penalty' => 0.7,
         ]);
-
         $data = json_decode($response);
         $phrase = $data->choices[0]->message->content ?? null;
-        $this->logDebug("Generated Phrase: $phrase");
+        $this->logDebug("<strong>Generated Phrase:</strong> $phrase");
+        $this->logDebug("<strong>Selected Tense:</strong> $tense");
+        $this->logDebug("<strong>Examples:</strong><br><br>" . nl2br($examplesText));
         return $phrase;
     }
 
@@ -117,9 +118,7 @@ class Polyphraser
         ]);
 
         $data = json_decode($response);
-        $translation = rtrim($data->choices[0]->message->content, '.') ?? '';
-        $this->logDebug("Translation from $fromLang to $toLang: $translation");
-        return $translation;
+        return rtrim($data->choices[0]->message->content, '.') ?? '';
     }
 
     private function translateAll($phrase)
@@ -166,9 +165,9 @@ class Polyphraser
         $this->debugLog[] = $message;
     }
 
-    private function notifyAdmin()
+    public function notifyAdmin()
     {
-        $emailContent = "<pre>" . implode("\n", $this->debugLog) . "</pre>";
+        $emailContent = '<div>' . implode("</div><div>", $this->debugLog) . '</div>';
 
         if ($this->environment === 'production' && !empty($this->adminEmail)) {
             send_email($this->adminEmail, 'A daily phrase was generated', $emailContent);
@@ -202,7 +201,7 @@ class Polyphraser
 
         if (isset($data['data'][0]['url'])) {
             $imageUrl = $data['data'][0]['url'];
-            $this->logDebug("Generated Image URL: $imageUrl");
+            $this->logDebug("<strong>Generated Image for phrase</strong>:<br>" . $phrase . "<br><img src='" . $imageUrl . "' style='width:500px;height:auto;'>");
             return $imageUrl;
         }
 
