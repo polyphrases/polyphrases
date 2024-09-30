@@ -170,7 +170,7 @@ class Polyphraser
         $emailContent = '<div>' . implode("</div><div>", $this->debugLog) . '</div>';
 
         if ($this->environment === 'production' && !empty($this->adminEmail)) {
-            send_email($this->adminEmail, 'A daily phrase was generated', $emailContent);
+            send_email($this->adminEmail, 'PolyGenerator - ' . uniqid(), $emailContent);
         } else {
             echo $emailContent;
         }
