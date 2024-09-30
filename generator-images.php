@@ -30,8 +30,3 @@ if ($phrase) {
     $generator->saveImage($imageUrl, $phrase['date']);
     $generator->updateImageStatus($phrase['id']);
 }
-
-// When it runs on auto, send me the email
-if(!$date){
-    $generator->notifyAdmin();
-}
