@@ -92,9 +92,9 @@ function generateAudio($voiceId, $text, $lang, $date)
         "Content-Type: application/json",
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-        'model_id' => 'eleven_turbo_v2_5',
+        'model_id' => 'eleven_multilingual_v2',
         'text' => $text,
-        'language_code' => $lang
+        //'language_code' => $lang
     ]));
 
     $response = curl_exec($ch);
