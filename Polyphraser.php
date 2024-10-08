@@ -79,14 +79,14 @@ class Polyphraser
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => "You are a creative assistant who generates interesting funny phrases for language practice. The sentence should surprise and amuse. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
+                    "content" => "You are a creative assistant who generates interesting phrases for language practice. The sentence should surprise and amuse. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
                 ],
                 [
                     "role" => "user",
-                    "content" => "Based on those examples, give me another phrase in " . $tense . ". Be authentic, unexpectedly humorous like the examples, but keep the phrase coherent and not loo long."
+                    "content" => "Based on those examples, give me another phrase in " . $tense . ". Be authentic, but keep the phrase coherent and not loo long."
                 ],
             ],
-            'temperature' => 0.9,
+            'temperature' => 0.8,
             'max_tokens' => 100,
             'frequency_penalty' => 0.5,
             'presence_penalty' => 0.7,
@@ -106,7 +106,7 @@ class Polyphraser
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => "You are a skilled translator. Translate the following phrase from " . ucfirst($fromLang) . " to " . ucfirst($toLang) . ", maintaining the creativity and humor of the original phrase."
+                    "content" => "You are a skilled translator. Translate the following phrase from " . ucfirst($fromLang) . " to " . ucfirst($toLang) . ", maintaining the structure and wording. Just return the translated phrase and nothing else."
                 ],
                 [
                     "role" => "user",

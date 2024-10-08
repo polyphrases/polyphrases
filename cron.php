@@ -89,10 +89,12 @@ foreach ($subscribers as $subscriber) {
     if ($delivered < 3 || $click_ratio > 49 || $open_ratio > 65) {
         $send_email = true;
     } else {
+        // Randomly send if open ratio under 65 but above 35
         if ($open_ratio > 35) {
             if (mt_rand(1, 100) <= 70) {
                 $send_email = true;
             }
+        // Don't send to unengaged peepole, set them as stale
         } else {
             $stmt = $pdo->prepare("UPDATE subscribers SET verified = 6 WHERE id = :id");
             $stmt->execute(['id' => $subscriber['id']]);
