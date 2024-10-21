@@ -75,7 +75,7 @@ class Polyphraser
         $tense = $temporalTenses[array_rand($temporalTenses)];
 
         $response = $this->openAi->chat([
-            'model' => 'o1-preview',
+            'model' => 'gpt-4',
             'messages' => [
                 [
                     "role" => "system",
