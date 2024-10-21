@@ -75,7 +75,7 @@ class Polyphraser
         $tense = $temporalTenses[array_rand($temporalTenses)];
 
         $response = $this->openAi->chat([
-            'model' => 'gpt-4o',
+            'model' => 'o1-preview',
             'messages' => [
                 [
                     "role" => "system",
@@ -92,12 +92,12 @@ Here are some examples of the type of phrases I'm looking for:\n- " . $examplesT
                 ],
                 [
                     "role" => "user",
-                    "content" => "Based on those examples, give me another phrase in " . $tense . ". Be authentic, but keep the phrase coherent and not loo long."
+                    "content" => "Based on those examples, generate another quirky and absurd phrase in " . $tense . "."
                 ],
             ],
             'temperature' => 0.8,
-            'max_tokens' => 100,
-            'frequency_penalty' => 0.5,
+            'max_tokens' => 80,
+            'frequency_penalty' => 0.2,
             'presence_penalty' => 0.7,
         ]);
         $data = json_decode($response);
