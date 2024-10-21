@@ -79,7 +79,7 @@ class Polyphraser
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => "You are a creative assistant who generates interesting phrases for language practice. The sentence should surprise and amuse. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
+                    "content" => "Create humorous and absurd phrases that involve unexpected events, ironic twists, and satirical observations about everyday life. Each phrase should tell a mini-story that is both surprising and amusing, often involving inanimate objects or animals behaving in human-like ways. The tone should be witty, clever, and slightly sarcastic, making each sentence feel like a humorous anecdote or a joke. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
                 ],
                 [
                     "role" => "user",
