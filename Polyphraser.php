@@ -79,7 +79,16 @@ class Polyphraser
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => "Create humorous and absurd phrases that involve unexpected events, ironic twists, and satirical observations about everyday life. Each phrase should tell a mini-story that is both surprising and amusing, often involving inanimate objects or animals behaving in human-like ways. The tone should be witty, clever, and slightly sarcastic, making each sentence feel like a humorous anecdote or a joke. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
+                    "content" => "
+Generate quirky and absurd phrases that combine everyday scenarios with surreal, bizarre elements. Characters, including animals, objects, and natural elements should engage in nonsensical actions, adding humor through unpredictable and absurd behavior. Include talking objects, animals with strange habits, and modern items behaving in wildly unconventional ways. Dialogue should be casual and reveal quirky exchanges. Phrases should deliver quick punchlines or surprising twists, blending mundane life with fantastical occurrences. Use modern settings like cities or homes as the backdrop, with offbeat, random humor and a focus on playful absurdity. Keep the tone unpredictable, blending surreal logic with a matter-of-fact delivery for maximum comedic effect.
+Guidelines for the phrases:
+Surreal and Absurd: Characters and objects should engage in bizarre actions that defy logic (e.g., The knight just peed in the middle of the board).
+Unexpected Twists: Phrases should have surprising punchlines, where ordinary events turn surreal (e.g., I bought an alarm clock that whips up a delicious breakfast).
+Mundane Meets Fantastical: Everyday objects should transform into something whimsical or nonsensical (e.g., The basketball player was puzzled when the ball turned into a double hamburger).
+Humorous Dialogue and Exaggeration: Use casual dialogue or exaggerated emotions from objects and characters (e.g., The parrot is splitting with laughter upon seeing a group of people who repeat what the television tells them).
+Quick, Punchy Humor: Keep the humor short, with immediate punchlines or surreal outcomes (e.g., The lemon tree is fed up with giving lemons).
+Absurd Logic: Use nonsensical logic presented in a matter-of-fact tone (e.g., The refrigerator was fed up with being cold, so it bought a down jacket).
+Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
                 ],
                 [
                     "role" => "user",
