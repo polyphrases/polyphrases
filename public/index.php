@@ -18,6 +18,18 @@ if (!isset($_SESSION['visit_comes_from'])) {
     $_SESSION['visit_comes_from'] = 'unknown';
 }
 
+if (isset($_SESSION['current_subscriber']) and $_SESSION['current_subscriber'] !== false) {
+    $stmt = $pdo->prepare("SELECT * FROM subscribers WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $_SESSION['current_subscriber']]);
+    $subscriber = $stmt->fetch(PDO::FETCH_ASSOC);
+} else {
+    $_SESSION['current_subscriber'] = false;
+}
+
+if (!isset($_SESSION['token_access_trials_via_link'])) {
+    $_SESSION['token_access_trials_via_link'] = 0;
+}
+
 // Does the visit come from an email link
 if (isset($_GET['from']) and $_GET['from'] === 'email') {
     $_SESSION['visit_comes_from'] = 'email';
@@ -99,7 +111,7 @@ if ($view === 'subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_PO
         $subscriber_id = $subscriber ? $subscriber['id'] : null;
 
         $token = generateToken($subscriber_id, $email);
-        $verification_link = $_ENV['SITE_URL'] . '/?email=' . urlencode($email) . '&token=' . urlencode($token) . '&action=verify&from=email';
+        $verification_link = $_ENV['SITE_URL'] . '/?id=' . urlencode($subscriber_id) . '&token=' . urlencode($token) . '&action=verify&from=email';
 
         $welcome_email = '<h1>Thanks for joining Poly Phrases!</h1>
         <p>Please confirm your email clicking the link below, in order to start receiving your daily multilingual phrases:</p>
@@ -115,37 +127,74 @@ if ($view === 'subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_PO
     }
 }
 
-// Handle email verification
-if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
-    $view = 'verification_completed';
+// Handle subscriber specific tasks that require a login via email link
+if (isset($_GET['id']) && isset($_GET['token']) && $_SESSION['token_access_trials_via_link'] < 3) {
+    $_SESSION['token_access_trials_via_link']++;
 
-    $email = urldecode($_GET['email']);
+    $subscriber_id = urldecode($_GET['id']);
     $token = urldecode($_GET['token']);
 
-    $stmt = $pdo->prepare("SELECT id, verified FROM subscribers WHERE email = :email");
-    $stmt->execute([':email' => $email]);
+    $stmt = $pdo->prepare("SELECT * FROM subscribers WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $subscriber_id]);
     $subscriber = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($subscriber) {
-        $expected_token = generateToken($subscriber['id'], $email);
+        $expected_token = generateToken($subscriber['id'], $subscriber['email']);
+        if ($token === $expected_token) {
+            $_SESSION['current_subscriber'] = $subscriber['id'];
 
-        if ($_GET['action'] == 'verify') {
-            if (!$subscriber['verified']) {
-                if ($token === $expected_token) {
+            if (isset($_GET['action']) && $_GET['action'] === 'verify') {
+                if (!$subscriber['verified']) {
                     $update_stmt = $pdo->prepare("UPDATE subscribers SET verified = 1 WHERE id = :id");
                     $update_stmt->execute([':id' => $subscriber['id']]);
                 }
+                $view = 'verification_completed';
             }
-        }
 
-        if ($_GET['action'] == 'unsubscribe') {
-            if ($subscriber['verified']) {
-                if ($token === $expected_token) {
+            if (isset($_GET['action']) && $_GET['action'] === 'unsubscribe') {
+                if ($subscriber['verified']) {
                     $update_stmt = $pdo->prepare("UPDATE subscribers SET verified = 8 WHERE id = :id");
                     $update_stmt->execute([':id' => $subscriber['id']]);
                 }
+                $view = 'unsubscribed';
             }
-            $view = 'unsubscribed';
+
+            if (isset($view_phrase['date'])) {
+
+                $today = new DateTime();
+                try {
+                    $last_visited = isset($subscriber['last_visited']) ? new DateTime($subscriber['last_visited']) : null;
+                } catch (Exception $e) {
+                    header('Location: /' . $view_phrase['date']);
+                    exit;
+                }
+
+                if (!$last_visited) {
+                    $updated_streak = 1;
+                } else {
+                    $interval = (new DateTime($last_visited->format('Y-m-d')))->diff(new DateTime($today->format('Y-m-d')))->days;
+
+                    if ($interval === 1 or $interval === 2) {
+                        // Continued streak (up to 2 days to be cool with people)
+                        $updated_streak = $subscriber['streak'] + 1;
+                    } elseif ($interval > 2) {
+                        // Streak broken; reset
+                        $updated_streak = 1;
+                    }
+                }
+
+                // Update the subscriber's last visited date and streak
+                if (isset($updated_streak)) {
+                    $update_stmt = $pdo->prepare("UPDATE subscribers SET last_visited = :today, streak = :streak WHERE id = :id");
+                    $update_stmt->execute([
+                        ':today' => $today->format('Y-m-d'),
+                        ':streak' => $updated_streak,
+                        ':id' => $_SESSION['current_subscriber']
+                    ]);
+                    $subscriber['streak'] = $updated_streak;
+                }
+            }
+
         }
 
     }
@@ -197,7 +246,7 @@ if (isset($_GET['email']) && isset($_GET['token']) && isset($_GET['action'])) {
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Poly Phrases">
     <link rel="icon" href="/assets/icon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/suppastyle.css">
+    <link rel="stylesheet" href="/assets/suppastyle.css?version=yeah">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XP2B88NNS7"></script>
     <script>

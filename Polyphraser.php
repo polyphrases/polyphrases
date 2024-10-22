@@ -16,7 +16,7 @@ class Polyphraser
     private $environment;
     private $debugLog = [];
 
-    public function __construct($openAiApiKey, $dbConfig, $numExamples = 25, $adminEmail = '', $environment = 'development')
+    public function __construct($openAiApiKey, $dbConfig, $numExamples = 20, $adminEmail = '', $environment = 'development')
     {
         $this->openAi = new OpenAi($openAiApiKey);
         $this->numExamples = $numExamples;
@@ -71,7 +71,7 @@ class Polyphraser
     private function generateCreativePhrase($examples)
     {
         $examplesText = implode("\n- ", $examples);
-        $temporalTenses = ['present', 'past', 'future'];
+        $temporalTenses = ["present tense, but be original in the usage of the present tense, don't just do a simple 'now I am' kind of present", "past tense, but don't start it with a simple last day, in the past, last week, last whatever, yesterday... be original in the usage of the past tense without overdoing it", "future tense, but don't start it with a simple next day, in the future, next week, next whatever, be original in the usage of the future tense without overdoing it"];
         $tense = $temporalTenses[array_rand($temporalTenses)];
 
         $response = $this->openAi->chat([
@@ -79,22 +79,32 @@ class Polyphraser
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => "You are a creative assistant who generates humorous, absurd, and imaginative phrases for language practice. Use unique combinations of everyday objects, activities, and professions to make the phrases fun and surprising, yet linguistically coherent. Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
+                    "content" => "
+Generate quirky and absurd phrases that combine everyday scenarios with surreal, bizarre elements. Characters, including animals, objects, and natural elements should engage in nonsensical actions, adding humor through unpredictable and absurd behavior. Include talking objects, animals with strange habits, and modern items behaving in wildly unconventional ways. Dialogue should be casual and reveal quirky exchanges. Phrases should deliver quick punchlines or surprising twists, blending mundane life with fantastical occurrences. Use modern settings like cities or homes as the backdrop, with offbeat, random humor and a focus on playful absurdity. Keep the tone unpredictable, blending surreal logic with a matter-of-fact delivery for maximum comedic effect.
+Guidelines for the phrases:
+Surreal and Absurd: Characters and objects should engage in bizarre actions that defy logic (e.g., The knight just peed in the middle of the board).
+Unexpected Twists: Phrases should have surprising punchlines, where ordinary events turn surreal (e.g., I bought an alarm clock that whips up a delicious breakfast).
+Mundane Meets Fantastical: Everyday objects should transform into something whimsical or nonsensical (e.g., The basketball player was puzzled when the ball turned into a double hamburger).
+Humorous Dialogue and Exaggeration: Use casual dialogue or exaggerated emotions from objects and characters (e.g., The parrot is splitting with laughter upon seeing a group of people who repeat what the television tells them).
+Quick, Punchy Humor: Keep the humor short, with immediate punchlines or surreal outcomes (e.g., The lemon tree is fed up with giving lemons).
+Absurd Logic: Use nonsensical logic presented in a matter-of-fact tone (e.g., The refrigerator was fed up with being cold, so it bought a down jacket).
+Here are some examples of the type of phrases I'm looking for:\n- " . $examplesText
                 ],
                 [
                     "role" => "user",
-                    "content" => "Based on those examples, give me another phrase in " . $tense . " tense."
+                    "content" => "Based on those examples, generate another quirky and absurd phrase in " . $tense . "."
                 ],
             ],
-            'temperature' => 0.9,
-            'max_tokens' => 100,
-            'frequency_penalty' => 0.5,
+            'temperature' => 0.8,
+            'max_tokens' => 80,
+            'frequency_penalty' => 0.2,
             'presence_penalty' => 0.7,
         ]);
-
         $data = json_decode($response);
         $phrase = $data->choices[0]->message->content ?? null;
-        $this->logDebug("Generated Phrase: $phrase");
+        $this->logDebug("<strong>Generated Phrase:</strong> $phrase");
+        $this->logDebug("<strong>Selected Tense:</strong> $tense");
+        $this->logDebug("<strong>Examples:</strong><br><br>" . nl2br($examplesText));
         return $phrase;
     }
 
@@ -105,7 +115,7 @@ class Polyphraser
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => "You are a skilled translator. Translate the following phrase from " . ucfirst($fromLang) . " to " . ucfirst($toLang) . ", maintaining the creativity and humor of the original phrase."
+                    "content" => "You are a skilled translator. Translate the following phrase from " . ucfirst($fromLang) . " to " . ucfirst($toLang) . ", maintaining the structure and wording. Just return the translated phrase and nothing else."
                 ],
                 [
                     "role" => "user",
@@ -117,9 +127,7 @@ class Polyphraser
         ]);
 
         $data = json_decode($response);
-        $translation = rtrim($data->choices[0]->message->content, '.') ?? '';
-        $this->logDebug("Translation from $fromLang to $toLang: $translation");
-        return $translation;
+        return rtrim($data->choices[0]->message->content, '.') ?? '';
     }
 
     private function translateAll($phrase)
@@ -166,12 +174,12 @@ class Polyphraser
         $this->debugLog[] = $message;
     }
 
-    private function notifyAdmin()
+    public function notifyAdmin()
     {
-        $emailContent = "<pre>" . implode("\n", $this->debugLog) . "</pre>";
+        $emailContent = '<div>' . implode("</div><div>", $this->debugLog) . '</div>';
 
         if ($this->environment === 'production' && !empty($this->adminEmail)) {
-            send_email($this->adminEmail, 'A daily phrase was generated', $emailContent);
+            send_email($this->adminEmail, 'PolyGenerator - ' . uniqid(), $emailContent);
         } else {
             echo $emailContent;
         }
@@ -202,7 +210,7 @@ class Polyphraser
 
         if (isset($data['data'][0]['url'])) {
             $imageUrl = $data['data'][0]['url'];
-            $this->logDebug("Generated Image URL: $imageUrl");
+            $this->logDebug("<strong>Generated Image for phrase</strong>:<br>" . $phrase . "<br><img src='" . $imageUrl . "' style='width:500px;height:auto;'>");
             return $imageUrl;
         }
 

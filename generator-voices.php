@@ -12,6 +12,9 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
+$lang = $_GET['lang'] ?? null;  // New: Check for 'lang' parameter
+$date = $_GET['date'] ?? null;
+
 // Check if $date is set
 if (isset($date)) {
     // Get phrase by $date
@@ -39,12 +42,17 @@ if ($phrase) {
             'no' => 'norwegian',
         );
 
-        foreach ($lang_db_field_map as $lang => $db_field) {
-            if ($phrase[$db_field]) {
-                // Pick a random voice from the available voices
-                $randomVoice = $voices['voices'][array_rand($voices['voices'])]['voice_id'];
-                // Generate audio for the phrase using the random voice
-                generateAudio($randomVoice, $phrase[$db_field] . '.', $lang, $phrase['date']);
+        // New: If a specific language is requested, generate voice only for that language
+        if ($lang && isset($lang_db_field_map[$lang]) && isset($phrase[$lang_db_field_map[$lang]])) {
+            $randomVoice = $voices['voices'][array_rand($voices['voices'])]['voice_id'];
+            generateAudio($randomVoice, $phrase[$lang_db_field_map[$lang]] . '.', $lang, $phrase['date']);
+        } else {
+            // Original behavior: generate voices for all languages if no specific language is requested
+            foreach ($lang_db_field_map as $lang => $db_field) {
+                if ($phrase[$db_field]) {
+                    $randomVoice = $voices['voices'][array_rand($voices['voices'])]['voice_id'];
+                    generateAudio($randomVoice, $phrase[$db_field] . '.', $lang, $phrase['date']);
+                }
             }
         }
     } else {
@@ -84,9 +92,9 @@ function generateAudio($voiceId, $text, $lang, $date)
         "Content-Type: application/json",
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-        'model_id' => 'eleven_turbo_v2_5',
+        'model_id' => 'eleven_multilingual_v2',
         'text' => $text,
-        'language_code' => $lang
+        //'language_code' => $lang
     ]));
 
     $response = curl_exec($ch);
