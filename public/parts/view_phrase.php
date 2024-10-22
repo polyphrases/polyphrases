@@ -5,13 +5,13 @@ if (!isset($view_phrase)) {
 
 // Define available languages and their respective 2-letter codes
 $languages = [
-    'english'     => 'en',
-    'spanish'     => 'es',
-    'german'      => 'de',
-    'italian'     => 'it',
-    'french'      => 'fr',
-    'portuguese'  => 'pt',
-    'norwegian'   => 'no'
+    'english' => 'en',
+    'spanish' => 'es',
+    'german' => 'de',
+    'italian' => 'it',
+    'french' => 'fr',
+    'portuguese' => 'pt',
+    'norwegian' => 'no'
 ];
 
 // Base path for audio files
@@ -46,6 +46,8 @@ if (isset($_SESSION['current_subscriber']) && isset($subscriber)) {
     $display_languages = array_keys($languages);
 }
 
+$audio_files_to_preload = []; // Array to store audio files for preloading
+
 foreach ($languages as $lang_name => $lang_code) {
     // Skip languages not in the display list
     if (!in_array($lang_name, $display_languages)) {
@@ -57,12 +59,17 @@ foreach ($languages as $lang_name => $lang_code) {
     $audio_exists = file_exists($audio_file);
     $phrase = $view_phrase[$db_field_name];
 
+    if ($audio_exists) {
+        $audio_file_path = '/voices/' . $view_phrase['date'] . '-' . $lang_code . '.mp3';
+        $audio_files_to_preload[] = $audio_file_path;
+    }
+
     $language_data[] = [
-        'lang_name'     => $lang_name,
-        'lang_code'     => $lang_code,
+        'lang_name' => $lang_name,
+        'lang_code' => $lang_code,
         'db_field_name' => $db_field_name,
-        'audio_exists'  => $audio_exists,
-        'phrase'        => $phrase
+        'audio_exists' => $audio_exists,
+        'phrase' => $phrase
     ];
 }
 ?>
@@ -72,7 +79,8 @@ foreach ($languages as $lang_name => $lang_code) {
         <h2><?php echo get_cool_slogan(); ?></h2>
     </header>
     <figure class="image">
-        <img src="/images/<?php echo $view_phrase['date']; ?>.jpg" alt="<?php echo htmlspecialchars($view_phrase['phrase']); ?>"/>
+        <img src="/images/<?php echo $view_phrase['date']; ?>.jpg"
+             alt="<?php echo htmlspecialchars($view_phrase['phrase']); ?>"/>
     </figure>
     <?php
     if (isset($_SESSION['current_subscriber']) && isset($subscriber)) {
@@ -90,12 +98,17 @@ foreach ($languages as $lang_name => $lang_code) {
                     // Generate a unique ID for this exercise
                     $exercise_id = 'exercise_' . $lang['lang_code'];
                     ?>
-                    <button class="reveal-button" data-exercise-id="<?php echo $exercise_id; ?>" aria-label="Reveal phrase">
+                    <button class="reveal-button" data-exercise-id="<?php echo $exercise_id; ?>"
+                            aria-label="Reveal phrase">
                         👁️
                     </button>
                 <?php endif; ?>
                 <?php if ($lang['audio_exists']): ?>
-                    <button class="play-button" data-lang="<?php echo $lang['lang_code']; ?>" data-date="<?php echo $view_phrase['date']; ?>" aria-label="Play audio" <?php if($lang['lang_code'] !== 'en') { echo 'style="display: none;"'; } ?>>
+                    <button class="play-button" data-lang="<?php echo $lang['lang_code']; ?>"
+                            data-date="<?php echo $view_phrase['date']; ?>"
+                            aria-label="Play audio" <?php if ($lang['lang_code'] !== 'en') {
+                        echo 'style="display: none;"';
+                    } ?>>
                         ▶️
                     </button>
                 <?php endif; ?>
@@ -161,12 +174,16 @@ foreach ($languages as $lang_name => $lang_code) {
             // Shuffle the missing words
             shuffle($missing_words);
             ?>
-            <div class="exercise" id="<?php echo $exercise_id; ?>" data-correct-phrase="<?php echo htmlspecialchars($phrase, ENT_QUOTES, 'UTF-8'); ?>" data-lang-code="<?php echo $lang['lang_code']; ?>" data-phrase-id="<?php echo $view_phrase['id']; ?>" data-date="<?php echo $view_phrase['date']; ?>">
+            <div class="exercise" id="<?php echo $exercise_id; ?>"
+                 data-correct-phrase="<?php echo htmlspecialchars($phrase, ENT_QUOTES, 'UTF-8'); ?>"
+                 data-lang-code="<?php echo $lang['lang_code']; ?>" data-phrase-id="<?php echo $view_phrase['id']; ?>"
+                 data-date="<?php echo $view_phrase['date']; ?>">
                 <p>
                     <!-- Display the phrase with placeholders -->
                     <?php foreach ($tokens as $token): ?>
                         <?php if (is_array($token) && $token['type'] === 'placeholder'): ?>
-                            <span class="placeholder" data-original-word="<?php echo htmlspecialchars($token['original_word'], ENT_QUOTES, 'UTF-8'); ?>">_______</span>
+                            <span class="placeholder"
+                                  data-original-word="<?php echo htmlspecialchars($token['original_word'], ENT_QUOTES, 'UTF-8'); ?>">_______</span>
                         <?php else: ?>
                             <span class="constructed-word"><?php echo htmlspecialchars($token); ?></span>
                         <?php endif; ?>
@@ -184,7 +201,9 @@ foreach ($languages as $lang_name => $lang_code) {
     <hr>
     <p class="flex-justify-center">
         <?php if ($_SESSION['visit_comes_from'] === 'email'): ?>
-            <a class="button" href="https://wa.me/?text=<?php echo urlencode("Look at this, it's a cool service to practice your *language skills* for free, in a super fun way!\n\n" . $_ENV['SITE_URL'] . '/' . $view_phrase['date'] . '?from=whatsapp'); ?>">Share it 😃</a>
+            <a class="button"
+               href="https://wa.me/?text=<?php echo urlencode("Look at this, it's a cool service to practice your *language skills* for free, in a super fun way!\n\n" . $_ENV['SITE_URL'] . '/' . $view_phrase['date'] . '?from=whatsapp'); ?>">Share
+                it 😃</a>
         <?php else: ?>
             <a class="button" href="/subscribe">Get Daily Phrases ✉️</a>
         <?php endif; ?>
@@ -192,21 +211,37 @@ foreach ($languages as $lang_name => $lang_code) {
 </article>
 
 <script>
+    const audioFilesToPreload = <?php echo json_encode($audio_files_to_preload); ?>;
+
     document.addEventListener('DOMContentLoaded', function () {
         // Audio playback logic
         const audioElements = {};
         let currentAudio = null;
         let currentButton = null;
 
+        // Preload audio files
+        audioFilesToPreload.forEach(function (audioFilePath) {
+            const audio = new Audio();
+            audio.src = audioFilePath;
+            audio.load();
+            audioElements[audioFilePath] = audio;
+
+            audio.addEventListener('canplaythrough', function () {
+                console.log(`Audio file ${audioFilePath} is fully loaded and ready to play.`);
+            });
+        });
+
         function playAudio(lang, date) {
             const audioFilePath = `/voices/${date}-${lang}.mp3`;
 
-            // Get or create the audio element
-            if (!audioElements[audioFilePath]) {
-                audioElements[audioFilePath] = new Audio(audioFilePath);
+            // Get the preloaded audio element
+            let audio = audioElements[audioFilePath];
+            if (!audio) {
+                // In case the audio was not preloaded for some reason
+                audio = new Audio(audioFilePath);
+                audioElements[audioFilePath] = audio;
             }
 
-            const audio = audioElements[audioFilePath];
             const button = document.querySelector(`.play-button[data-lang="${lang}"][data-date="${date}"]`);
 
             // If there is a current audio playing and it's not the same as this one, pause it
@@ -219,17 +254,7 @@ foreach ($languages as $lang_name => $lang_code) {
 
             // Toggle play/pause
             if (audio.paused) {
-                // Ensure audio is loaded before playing
-                if (audio.readyState >= 3) { // HAVE_FUTURE_DATA or higher
-                    audio.play();
-                } else {
-                    // Add event listener to play when ready
-                    audio.addEventListener('canplaythrough', function canPlay() {
-                        audio.removeEventListener('canplaythrough', canPlay);
-                        audio.play();
-                    });
-                    audio.load(); // Start loading the audio
-                }
+                audio.play();
 
                 if (button) {
                     button.textContent = '⏸️';
