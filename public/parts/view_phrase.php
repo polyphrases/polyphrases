@@ -95,7 +95,7 @@ foreach ($languages as $lang_name => $lang_code) {
                 </button>
                 <?php endif; ?>
                 <?php if ($lang['audio_exists']): ?>
-                    <button class="play-button" data-lang="<?php echo $lang['lang_code']; ?>" data-date="<?php echo $view_phrase['date']; ?>" aria-label="Play audio" style="display: none;">
+                    <button class="play-button" data-lang="<?php echo $lang['lang_code']; ?>" data-date="<?php echo $view_phrase['date']; ?>" aria-label="Play audio"<?php if($lang['lang_code'] !== 'en') { echo ' style="display: none;"'; } ?>>
                         ▶️
                     </button>
                 <?php endif; ?>
