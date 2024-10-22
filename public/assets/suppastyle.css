@@ -162,6 +162,12 @@ hr {
     border-radius: 8px;
 }
 
+.phrase-viewer .subscriber-stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .phrase-viewer a {
     text-decoration: none;
 }
@@ -192,7 +198,8 @@ hr {
     margin-bottom: 1rem;
 }
 
-.phrase-viewer .play-button {
+.phrase-viewer .play-button,
+.phrase-viewer .reveal-button {
     font-size: 20px;
     padding: 0;
     background: none;
@@ -207,6 +214,49 @@ hr {
 
 .phrase-viewer .play-button:hover, .play-button:active {
     opacity: 1;
+}
+
+.phrase-viewer .good span {
+    color: green;
+}
+
+.phrase-viewer .wrong span {
+    color: red;
+}
+
+.phrase-viewer span.filled-placeholder {
+    padding: 0.3rem;
+    background-color: #1b74e4;
+    color: #FFF;
+}
+
+.phrase-viewer .mode-switcher {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    margin: 1rem 0;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.phrase-viewer .mode-switcher button {
+    background-color: #222;
+    border: none;
+    color: #fff;
+}
+
+.phrase-viewer .word-bank{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    flex-direction: row;
+}
+
+.phrase-viewer .word-bank-word {
+    padding: 0.3rem;
+    background-color: #f5f5f5;
+    border-radius: 0.5rem;
+    border: 1px solid #ddd;
 }
 
 footer {

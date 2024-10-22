@@ -103,6 +103,10 @@ foreach ($subscribers as $subscriber) {
 
     echo "\nChecking subscriber: " . $subscriber['id'] . " with open ratio: " . $open_ratio . "% (" . $opens . " of " . $delivered . ") and click ratio: " . $click_ratio . "% (" . $clicks . " of " . $delivered . ") --> Send?: " . ($send_email ? 'Yes' : 'No');
 
+    // Generate the unsubscribe link
+    $subscriber_token = generateToken($subscriber['id'], $email);
+    $unsubscribe_link = $_ENV['SITE_URL'] . '/?id=' . urlencode($subscriber['id']) . '&token=' . urlencode($subscriber_token) . '&action=unsubscribe';
+
     $message = "<h1 style='color: $emailColor;'>Today's Phrase</h1>
     <p style='font-size:16px;padding:15px;background-color:$emailColor;color:#FFF;border-radius:8px;'>"
         . htmlspecialchars($phrase['phrase']) . "</p>" . $hr_separator;
@@ -128,7 +132,7 @@ foreach ($subscribers as $subscriber) {
     }
 
     $message .= '<p style="text-align:center;padding:20px;">
-        <a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email" style="
+        <a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email&id=' . urlencode($subscriber['id']) . '&token=' . urlencode($subscriber_token) . '" style="
             display:inline-block;
             background-color:#fff;
             text-decoration:none;
@@ -148,10 +152,6 @@ foreach ($subscribers as $subscriber) {
     if (file_exists($image_path)) {
         $message .= "<img src='" . $_ENV['SITE_URL'] . '/images/' . $phrase['date'] . '.jpg' . "' alt='Descriptive image for this phrase' style='width:500px;max-width:100%;height:auto;border-radius:8px;'>";
     }
-
-    // Generate the unsubscribe link
-    $unsubscribe_token = generateToken($subscriber['id'], $email);
-    $unsubscribe_link = $_ENV['SITE_URL'] . '/?email=' . urlencode($email) . '&token=' . urlencode($unsubscribe_token) . '&action=unsubscribe';
 
     $message .= $hr_separator . '
     <p>Poly Phrases | Day: <i>' . $today . '</i></p>
