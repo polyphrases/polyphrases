@@ -131,6 +131,10 @@ foreach ($subscribers as $subscriber) {
         $message .= "<p><strong>Norwegian:</strong> " . htmlspecialchars($phrase['norwegian']) . "</p>";
     }
 
+    // Show current consecutive days and points
+    $message .= "<p><strong>Consecutive days:</strong> " . $subscriber['consecutive_days'] . "</p>";
+    $message .= "<p><strong>Points:</strong> " . $subscriber['points'] . "</p>";
+
     $message .= '<p style="text-align:center;padding:20px;">
         <a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email&id=' . urlencode($subscriber['id']) . '&token=' . urlencode($subscriber_token) . '" style="
             display:inline-block;
@@ -143,7 +147,7 @@ foreach ($subscribers as $subscriber) {
             font-family:Helvetica,sans-serif;
             font-weight:bold;
             color:' . $emailColor . ';
-            line-height:16px;">Listen to the pronunciation ▶️</a></p>';
+            line-height:16px;">Open the practice mode! ✏️</a></p>';
 
     $message .= $hr_separator . "<p><i>Don't just ignore this. Take your time to learn the new vocabulary, a small step a day makes wonders!</i></p>";
 

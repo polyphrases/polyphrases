@@ -220,6 +220,10 @@ hr {
     color: green;
 }
 
+.phrase-viewer .solution span {
+    color: orange;
+}
+
 .phrase-viewer .wrong span {
     color: red;
 }
@@ -228,6 +232,12 @@ hr {
     padding: 0.3rem;
     background-color: #1b74e4;
     color: #FFF;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+.phrase-viewer span.filled-placeholder:hover {
+    background-color: red;
 }
 
 .phrase-viewer .mode-switcher {
@@ -257,6 +267,12 @@ hr {
     background-color: #f5f5f5;
     border-radius: 0.5rem;
     border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.phrase-viewer .word-bank-word:hover {
+    background-color: green;
+    color: #FFF;
 }
 
 footer {

@@ -213,6 +213,7 @@ foreach ($languages as $lang_name => $lang_code) {
             const correctPhrase = exercise.dataset.correctPhrase.trim();
             const langCode = exercise.dataset.langCode;
             const phraseId = exercise.dataset.phraseId;
+            const revealButton = document.querySelector(`.reveal-button[data-exercise-id="${exercise.id}"]`);
 
             // Get all word elements in the exercise
             const wordElements = exercise.querySelectorAll('span.constructed-word, span.placeholder');
@@ -261,6 +262,12 @@ foreach ($languages as $lang_name => $lang_code) {
                 });
 
                 resetExerciseClass();
+
+                // Show the reveal button if it was hidden
+                if (revealButton && revealButton.style.display === 'none') {
+                    revealButton.style.display = '';
+                }
+
                 // Remove 'solution' class when a word is removed
                 exercise.classList.remove('solution');
             }
@@ -269,12 +276,19 @@ foreach ($languages as $lang_name => $lang_code) {
             function checkIfComplete() {
                 if (wordBank.querySelectorAll('.word-bank-word').length === 0) {
                     // All placeholders filled
-                    const constructedPhrase = Array.from(wordElements).map(el => el.textContent).join('').trim();
-                    if (constructedPhrase === correctPhrase) {
+                    const constructedPhrase = Array.from(wordElements).map(el => el.textContent).join('').trim().replace(/\s+/g, '').toLowerCase();
+                    const normalizedCorrectPhrase = correctPhrase.replace(/\s+/g, '').toLowerCase();
+
+                    if (constructedPhrase === normalizedCorrectPhrase) {
                         // Correct
                         exercise.classList.remove('wrong');
                         if (!exercise.classList.contains('solution')) {
                             exercise.classList.add('good');
+
+                            // Hide the reveal button
+                            if (revealButton) {
+                                revealButton.style.display = 'none';
+                            }
 
                             // Check if user is logged in
                             const pointsElement = document.getElementById('current-total-points');
@@ -313,6 +327,11 @@ foreach ($languages as $lang_name => $lang_code) {
 
             function resetExerciseClass() {
                 exercise.classList.remove('good', 'wrong');
+
+                // Show the reveal button if it was hidden
+                if (revealButton && revealButton.style.display === 'none') {
+                    revealButton.style.display = '';
+                }
             }
 
             // Add event listeners to word bank words
@@ -323,16 +342,14 @@ foreach ($languages as $lang_name => $lang_code) {
             });
 
             // Handle the reveal button for this exercise
-            const revealButton = document.querySelector(`.reveal-button[data-exercise-id="${exercise.id}"]`);
             if (revealButton) {
                 revealButton.addEventListener('click', function () {
                     // Replace placeholders with the correct words
                     const placeholders = exercise.querySelectorAll('span.placeholder');
-                    const wordBank = exercise.querySelector('.word-bank');
 
-                    // Remove word bank
+                    // Empty word bank
                     if (wordBank) {
-                        wordBank.remove();
+                        wordBank.innerHTML = '';
                     }
 
                     // Get the correct tokens
@@ -345,6 +362,7 @@ foreach ($languages as $lang_name => $lang_code) {
                             if (/\p{L}+/u.test(token) && token.length >= 5) {
                                 placeholder.textContent = token;
                                 placeholder.classList.add('filled-placeholder');
+                                filledPlaceholders[idx] = token; // Update filledPlaceholders
                                 break;
                             }
                         }
@@ -354,6 +372,9 @@ foreach ($languages as $lang_name => $lang_code) {
                     exercise.classList.remove('good', 'wrong');
                     exercise.classList.add('solution');
 
+                    // Hide the reveal button
+                    revealButton.style.display = 'none';
+
                     // Allow the user to remove fillers
                     placeholders.forEach(function (placeholder, index) {
                         placeholder.addEventListener('click', function placeholderClickHandler() {
@@ -361,9 +382,6 @@ foreach ($languages as $lang_name => $lang_code) {
                             placeholder.removeEventListener('click', placeholderClickHandler);
                         });
                     });
-
-                    // Reset filledPlaceholders
-                    filledPlaceholders = Array(placeholders.length).fill(null);
                 });
             }
         });
