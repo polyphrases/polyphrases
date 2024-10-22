@@ -131,9 +131,26 @@ foreach ($subscribers as $subscriber) {
         $message .= "<p><strong>Norwegian:</strong> " . htmlspecialchars($phrase['norwegian']) . "</p>";
     }
 
+    $message .= $hr_separator;
+
     // Show current consecutive days and points
-    $message .= "<p><strong>Consecutive days:</strong> " . $subscriber['consecutive_days'] . "</p>";
-    $message .= "<p><strong>Points:</strong> " . $subscriber['points'] . "</p>";
+    $consecutive_days = $subscriber['consecutive_days'];
+    $points = $subscriber['points'];
+
+    $point_str = $points == 1 ? "point" : "points";
+    $day_str = $consecutive_days == 1 ? "day" : "days";
+
+    if ($consecutive_days == 0) {
+        $message .= "<p>🚀 You haven't started practicing yet! Click the button below to kickstart your language learning adventure! 😊</p>";
+    } elseif ($consecutive_days == 1 && $points == 1) {
+        $message .= "<p>🎉 Great start! You practiced for 1 day and earned 1 point! Let's keep the momentum going! 💪</p>";
+    } elseif ($consecutive_days == 1) {
+        $message .= "<p>👍 Great job! You practiced for 1 day and earned $points $point_str! Keep it up! 🌟</p>";
+    } elseif ($consecutive_days == 2) {
+        $message .= "<p>🔥 Yeah! You've practiced for 2 consecutive days and have earned $points $point_str! Keep going! 🏆</p>";
+    } else {
+        $message .= "<p>🏅 Fantastic! You've been practicing for $consecutive_days consecutive $day_str and have earned $points $point_str! Your dedication is paying off! Keep the streak alive! 🌠</p>";
+    }
 
     $message .= '<p style="text-align:center;padding:20px;">
         <a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email&id=' . urlencode($subscriber['id']) . '&token=' . urlencode($subscriber_token) . '" style="
