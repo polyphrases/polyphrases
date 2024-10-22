@@ -377,6 +377,8 @@ foreach ($subscribers as $subscriber) {
     $message .= '<p>
         <a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email&id=' . urlencode($subscriber['id']) . '&token=' . urlencode($subscriber_token) . '" style="
             display:inline-block;
+            width:100%;
+            max-width:600px;
             background-color:#fff;
             text-decoration:none;
             padding:10px 16px;
@@ -393,7 +395,7 @@ foreach ($subscribers as $subscriber) {
     // Add image if exists
     $image_path = __DIR__ . '/public/images/' . $phrase['date'] . '.jpg';
     if (file_exists($image_path)) {
-        $message .= "<img src='" . $_ENV['SITE_URL'] . '/images/' . $phrase['date'] . '.jpg' . "' alt='Descriptive image for this phrase' style='width:500px;max-width:100%;height:auto;border-radius:8px;'>";
+        $message .= "<img src='" . $_ENV['SITE_URL'] . '/images/' . $phrase['date'] . '.jpg' . "' alt='Descriptive image for this phrase' style='width:100%;max-width:600px;height:auto;border-radius:8px;'>";
     }
 
     $message .= $hr_separator . '
