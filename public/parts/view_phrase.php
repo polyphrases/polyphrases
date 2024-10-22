@@ -405,10 +405,8 @@ foreach ($languages as $lang_name => $lang_code) {
                                                 // Trigger the points animation
                                                 showPointsAnimation(Number(data.new_points_total), 5);
 
-                                                // Play audio after animation starts fading out
-                                                setTimeout(() => {
-                                                    playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
-                                                }, 1600);
+                                                // Play audio
+                                                playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
                                             }
                                         }
                                     });
