@@ -377,6 +377,8 @@ foreach ($subscribers as $subscriber) {
     $message .= '<p>
         <a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email&id=' . urlencode($subscriber['id']) . '&token=' . urlencode($subscriber_token) . '" style="
             display:inline-block;
+            box-sizing:border-box;
+            text-align:center;
             width:100%;
             max-width:600px;
             background-color:#fff;
