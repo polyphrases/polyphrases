@@ -138,7 +138,8 @@ foreach ($subscribers as $subscriber) {
         '🚀', '🎉', '🔥', '🌟', '🏆', '✨', '🌈', '💪', '👍', '👏',
         '😁', '😃', '😊', '🥳', '🤩', '🙌', '💫', '🎯', '🗣️', '📚',
         '📝', '🎓', '🌠', '🏅', '🎖️', '💎', '🥇', '🥈', '🥉', '💥',
-        '💡', '🎈', '⚡', '💖', '👑', '🤠', '🤗', '😎', '😺', '🏍', '👊', '✌️', '🤟', '👌', '🙏', '💃', '🕺', '🎵', '🌞',
+        '💡', '🎈', '⚡', '💖', '👑', '🤠', '🤗', '😎', '😺', '🏍',
+        '👊', '✌️', '🤟', '👌', '🙏', '💃', '🕺', '🎵', '🌞',
         '🌊', '🍀', '🍾', '🏖️', '🛡️', '🦾', '🧠', '💻', '📈', '📣',
         '🔔', '🎹', '🎸', '🎺', '🥁', '🌋', '⛰️', '🏔️', '🏝️', '🌅',
         '🌄', '🎆', '🌌', '🌃', '💐', '🌸', '🍎', '🍉', '🍇', '🍒',
@@ -373,8 +374,7 @@ foreach ($subscribers as $subscriber) {
 
     $message .= '</p>';
 
-
-    $message .= '<p style="padding:18px;">
+    $message .= '<p>
         <a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email&id=' . urlencode($subscriber['id']) . '&token=' . urlencode($subscriber_token) . '" style="
             display:inline-block;
             background-color:#fff;
@@ -386,7 +386,7 @@ foreach ($subscribers as $subscriber) {
             font-family:Helvetica,sans-serif;
             font-weight:bold;
             color:' . $emailColor . ';
-            line-height:16px;">Open the practice mode! ✏️</a></p>';
+            line-height:16px;">Open Today’s Challenge! ✏️</a></p>';
 
     $message .= $hr_separator . "<p><i>Don't just ignore this. Take your time to learn the new vocabulary, a small step a day makes wonders!</i></p>";
 
