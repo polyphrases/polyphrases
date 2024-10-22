@@ -360,9 +360,7 @@ foreach ($languages as $lang_name => $lang_code) {
                                     .then(data => {
                                         if (data.success) {
                                             // If new_points_total is null
-                                            if (data.new_points_total === null) {
-                                                playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
-                                            }else {
+                                            if (data.new_points_total !== null) {
                                                 // Update the points displayed on the site
                                                 pointsElement.textContent = data.new_points_total;
 
