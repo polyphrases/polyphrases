@@ -234,6 +234,7 @@ hr {
     color: #FFF;
     border-radius: 0.5rem;
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 .phrase-viewer span.filled-placeholder:hover {
@@ -268,10 +269,12 @@ hr {
     border-radius: 0.5rem;
     border: 1px solid #ddd;
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 .phrase-viewer .word-bank-word:hover {
     background-color: green;
+    border-color: green;
     color: #FFF;
 }
 
@@ -454,7 +457,7 @@ footer a {
         right: 0;
         width: 15px;
         border-radius: inherit;
-        box-shadow: inset 0px 0px 0px 15px white; /* Adjust to match background color */
+        box-shadow: inset 0px 0px 0px 15px white;
         z-index: 1;
         pointer-events: none;
     }
