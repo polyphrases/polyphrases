@@ -306,6 +306,48 @@ footer a {
     justify-content: center;
 }
 
+/* Full-screen overlay for points animation */
+.points-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: green;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    z-index: 9;
+    pointer-events: none;
+}
+
+.points-overlay.show {
+    animation: fadeInOut 3s forwards;
+}
+
+.points-overlay .points-text {
+    color: white;
+    font-size: 5em;
+    font-weight: bold;
+}
+
+/* Keyframe animations */
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+    33.33% { /* At 1 second */
+        opacity: 1;
+    }
+    66.66% { /* At 2 seconds */
+        opacity: 1;
+    }
+    100% { /* At 3 seconds */
+        opacity: 0;
+    }
+}
+
 @media (max-width: 650px) {
     aside .example-phrase {
         width: 100% !important;

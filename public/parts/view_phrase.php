@@ -315,6 +315,9 @@ foreach ($languages as $lang_name => $lang_code) {
                                         if (data.success) {
                                             // Update the points displayed on the site
                                             pointsElement.textContent = data.new_points_total;
+
+                                            // Trigger the points animation
+                                            showPointsAnimation(Number(data.new_points_total), 5);
                                         }
                                     });
                             }
@@ -378,5 +381,53 @@ foreach ($languages as $lang_name => $lang_code) {
                 });
             }
         });
+
+        // Function to show the points animation
+        function showPointsAnimation(totalPoints, pointsAdded) {
+            // Create the overlay element
+            let overlay = document.createElement('div');
+            overlay.classList.add('points-overlay');
+
+            // Create the points text element
+            let pointsText = document.createElement('div');
+            pointsText.classList.add('points-text');
+            pointsText.textContent = totalPoints - pointsAdded; // Start from previous total
+
+            overlay.appendChild(pointsText);
+            document.body.appendChild(overlay);
+
+            // Force reflow to apply the CSS animations
+            overlay.offsetWidth; // Trigger reflow
+
+            // Add the show class to start the animation
+            overlay.classList.add('show');
+
+            // Start counting after 1 second (after fade-in)
+            setTimeout(() => {
+                let startPoints = totalPoints - pointsAdded;
+                let endPoints = totalPoints;
+                let duration = 1000; // 1 second for counting
+                let frameRate = 30; // frames per second
+                let frameDuration = 1000 / frameRate;
+                let totalFrames = Math.round(duration / frameDuration);
+                let currentFrame = 0;
+
+                let counterInterval = setInterval(() => {
+                    currentFrame++;
+                    let progress = currentFrame / totalFrames;
+                    let currentPoints = Math.round(startPoints + (endPoints - startPoints) * progress);
+                    pointsText.textContent = currentPoints;
+
+                    if (currentFrame >= totalFrames) {
+                        clearInterval(counterInterval);
+                    }
+                }, frameDuration);
+            }, 1000); // delay before starting counting
+
+            // Remove the overlay after the animation ends
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+            }, 3000); // total animation duration (fade in + count + fade out)
+        }
     });
 </script>
