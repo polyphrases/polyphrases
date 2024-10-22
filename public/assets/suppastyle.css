@@ -272,10 +272,13 @@ hr {
     transition: background-color 0.2s;
 }
 
-.phrase-viewer .word-bank-word:hover {
-    background-color: green;
-    border-color: green;
-    color: #FFF;
+/* Apply :hover styles only on devices that support hover to avoid weird issues */
+@media (hover: hover) and (pointer: fine) {
+    .phrase-viewer .word-bank-word:hover {
+        background-color: green;
+        border-color: green;
+        color: #FFF;
+    }
 }
 
 footer {
