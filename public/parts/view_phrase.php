@@ -121,7 +121,11 @@ foreach ($languages as $lang_name => $lang_code) {
             $missing_words = [];
             foreach ($selected_indices as $index) {
                 $missing_words[] = $tokens[$index];
-                $tokens[$index] = '_______';
+                // Replace token with an array containing placeholder info
+                $tokens[$index] = [
+                    'type' => 'placeholder',
+                    'original_word' => $tokens[$index],
+                ];
             }
 
             // Shuffle the missing words
@@ -131,8 +135,8 @@ foreach ($languages as $lang_name => $lang_code) {
                 <p>
                     <!-- Display the phrase with placeholders -->
                     <?php foreach ($tokens as $token): ?>
-                        <?php if ($token === '_______'): ?>
-                            <span class="placeholder">_______</span>
+                        <?php if (is_array($token) && $token['type'] === 'placeholder'): ?>
+                            <span class="placeholder" data-original-word="<?php echo htmlspecialchars($token['original_word'], ENT_QUOTES, 'UTF-8'); ?>">_______</span>
                         <?php else: ?>
                             <span class="constructed-word"><?php echo htmlspecialchars($token); ?></span>
                         <?php endif; ?>
@@ -345,28 +349,17 @@ foreach ($languages as $lang_name => $lang_code) {
             if (revealButton) {
                 revealButton.addEventListener('click', function () {
                     // Replace placeholders with the correct words
-                    const placeholders = exercise.querySelectorAll('span.placeholder');
+                    placeholders.forEach(function (placeholder, idx) {
+                        const originalWord = placeholder.getAttribute('data-original-word');
+                        placeholder.textContent = originalWord;
+                        placeholder.classList.add('filled-placeholder');
+                        filledPlaceholders[idx] = originalWord;
+                    });
 
                     // Empty word bank
                     if (wordBank) {
                         wordBank.innerHTML = '';
                     }
-
-                    // Get the correct tokens
-                    const correctTokens = correctPhrase.match(/(\P{L}+|\p{L}+)/gu);
-
-                    let placeholderIndex = 0;
-                    placeholders.forEach(function (placeholder, idx) {
-                        while (placeholderIndex < correctTokens.length) {
-                            const token = correctTokens[placeholderIndex++];
-                            if (/\p{L}+/u.test(token) && token.length >= 5) {
-                                placeholder.textContent = token;
-                                placeholder.classList.add('filled-placeholder');
-                                filledPlaceholders[idx] = token; // Update filledPlaceholders
-                                break;
-                            }
-                        }
-                    });
 
                     // Mark the exercise as 'solution'
                     exercise.classList.remove('good', 'wrong');
