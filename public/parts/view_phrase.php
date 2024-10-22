@@ -225,10 +225,6 @@ foreach ($languages as $lang_name => $lang_code) {
             audio.src = audioFilePath;
             audio.load();
             audioElements[audioFilePath] = audio;
-
-            audio.addEventListener('canplaythrough', function () {
-                console.log(`Audio file ${audioFilePath} is fully loaded and ready to play.`);
-            });
         });
 
         function playAudio(lang, date) {
