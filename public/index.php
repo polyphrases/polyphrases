@@ -172,7 +172,8 @@ if (isset($_GET['id']) && isset($_GET['token']) && $_SESSION['token_access_trial
                 if (!$last_visited) {
                     $updated_streak = 1;
                 } else {
-                    $interval = $last_visited->diff($today)->days;
+                    $interval = (new DateTime($last_visited->format('Y-m-d')))->diff(new DateTime($today->format('Y-m-d')))->days;
+
                     if ($interval === 1) {
                         // Continued streak
                         $updated_streak = $subscriber['streak'] + 1;
