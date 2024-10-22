@@ -94,7 +94,7 @@ foreach ($subscribers as $subscriber) {
             if (mt_rand(1, 100) <= 70) {
                 $send_email = true;
             }
-        // Don't send to unengaged peepole, set them as stale
+            // Don't send to unengaged peepole, set them as stale
         } else {
             $stmt = $pdo->prepare("UPDATE subscribers SET verified = 6 WHERE id = :id");
             $stmt->execute(['id' => $subscriber['id']]);
@@ -133,26 +133,248 @@ foreach ($subscribers as $subscriber) {
 
     $message .= $hr_separator;
 
+    // Extended arrays of emojis and motivational phrases
+    $emojis = [
+        '🚀', '🎉', '🔥', '🌟', '🏆', '✨', '🌈', '💪', '👍', '👏',
+        '😁', '😃', '😊', '🥳', '🤩', '🙌', '💫', '🎯', '🗣️', '📚',
+        '📝', '🎓', '🌠', '🏅', '🎖️', '💎', '🥇', '🥈', '🥉', '💥',
+        '💡', '🎈', '⚡', '💖', '👑', '🤠', '🤗', '😎', '😺', '🏍', '👊', '✌️', '🤟', '👌', '🙏', '💃', '🕺', '🎵', '🌞',
+        '🌊', '🍀', '🍾', '🏖️', '🛡️', '🦾', '🧠', '💻', '📈', '📣',
+        '🔔', '🎹', '🎸', '🎺', '🥁', '🌋', '⛰️', '🏔️', '🏝️', '🌅',
+        '🌄', '🎆', '🌌', '🌃', '💐', '🌸', '🍎', '🍉', '🍇', '🍒',
+        '🚴‍♂️', '🏄‍♀️', '🏇', '🚣‍♂️', '🏊‍♀️', '🤸‍♂️', '🤾‍♀️', '🥋', '🧗‍♂️', '🏹',
+        '🛹', '🎢', '🎡', '🎠', '🛴', '🚂', '✈️', '🚁', '🚀', '🛸'
+    ];
+
+    $motivational_phrases = [
+        "Keep up the great work!",
+        "You're on a roll!",
+        "Your dedication is inspiring!",
+        "Stay motivated!",
+        "Let's keep the momentum going!",
+        "You're reaching new heights!",
+        "Your commitment is exemplary!",
+        "You're a language learning champion!",
+        "Dive in and boost your learning journey!",
+        "You're making fantastic progress!",
+        "Keep the streak alive!",
+        "Your hard work is paying off!",
+        "Every day is a step closer to fluency!",
+        "Amazing effort!",
+        "Keep pushing forward!",
+        "You're doing great!",
+        "Keep shining!",
+        "Way to go!",
+        "Excellent job!",
+        "You're unstoppable!",
+        "Fantastic progress!",
+        "Impressive dedication!",
+        "Keep the fire burning!",
+        "Nothing can stop you now!",
+        "Keep it up!",
+        "You're making us proud!",
+        "Onwards and upwards!",
+        "Great job!",
+        "You're acing it!",
+        "Bravo!",
+        "You're a star!",
+        "Success is yours!",
+        "Keep conquering!",
+        "Outstanding performance!",
+        "Well done!",
+        "Keep climbing!",
+        "You're blazing trails!",
+        "The sky's the limit!",
+        "You're making waves!",
+        "Keep rocking!",
+        "You're a powerhouse!",
+        "You're an inspiration!",
+        "Keep aiming high!",
+        "Your progress is amazing!",
+        "Keep smashing those goals!",
+        "You're doing a fantastic job!",
+        "Keep the momentum!",
+        "You're making a difference!",
+        "Your efforts are commendable!",
+        "Keep striving!",
+        "You're a legend!",
+        "The world is yours!",
+        "You're going places!",
+        "Your future is bright!",
+        "Embrace the journey!",
+        "Believe in yourself!",
+        "You're unlocking greatness!",
+        "Keep exploring!",
+        "You're mastering it!",
+        "Rise and shine!",
+        "Seize the day!",
+        "You're making history!",
+        "Aim for the stars!",
+        "Forge ahead!",
+        "Unleash your potential!",
+        "Victory is near!",
+        "Shine on!",
+        "Keep the flame alive!",
+        "You're turning heads!",
+        "Keep exceeding expectations!",
+        "Your journey is remarkable!",
+        "Keep elevating!",
+        "You're a force to be reckoned with!",
+        "March on!",
+        "Your zeal is admirable!",
+        "Keep up the pace!",
+        "You're a trailblazer!",
+        "Chart your own path!",
+        "Keep dazzling!",
+        "You're making leaps and bounds!",
+        "Stay awesome!",
+        "Keep setting records!",
+        "Your passion is contagious!",
+        "You're a game changer!",
+        "Keep making strides!",
+        "You're lighting the way!",
+        "Soar high!",
+        "You're doing wonders!",
+        "Keep the spirit alive!",
+        "You're creating ripples!",
+        "Keep breaking barriers!",
+        "Your enthusiasm is electrifying!",
+        "Keep being amazing!",
+        "You're a beacon of excellence!",
+        "Keep making magic!",
+        "You're the real MVP!",
+        "Keep forging ahead!",
+        "You're the architect of your success!",
+        "Keep building greatness!"
+    ];
+
     // Show current consecutive days and points
     $consecutive_days = $subscriber['consecutive_days'];
     $points = $subscriber['points'];
 
-    $point_str = $points == 1 ? "point" : "points";
+    // Singular or plural 'days'
     $day_str = $consecutive_days == 1 ? "day" : "days";
 
+    // Randomly select an emoji and motivational phrase
+    $emoji = $emojis[array_rand($emojis)];
+    $phrase = $motivational_phrases[array_rand($motivational_phrases)];
+
+    // Messages for different intervals
+    $messages_zero_days = [
+        "{$emoji} You haven't started practicing yet! Click the button below to kickstart your language learning adventure!",
+        "{$emoji} Ready to begin your language journey? Tap the button and start today!",
+        "{$emoji} Your path to fluency starts now! Hit the button below and dive in!",
+        "{$emoji} The first step awaits! Click below to embark on your language adventure!",
+        "{$emoji} No better time than now to start learning! Press the button and let's go!"
+    ];
+
+    $messages_zero_points = [
+        "{$emoji} You've practiced for {$consecutive_days} {$day_str} but haven't earned any points yet. Try the practice sessions—you'll love them!",
+        "{$emoji} {$consecutive_days} {$day_str} of effort! Engage in activities to earn points and track your progress!",
+        "{$emoji} Keep going! Participate in practice sessions to start earning points!",
+        "{$emoji} You're on your way! Earn points by completing practice tasks!",
+        "{$emoji} Let's boost your progress! Start earning points with practice sessions!"
+    ];
+
+    $messages_one_day = [
+        "{$emoji} Great start! You practiced for 1 day and earned {$points} points! {$phrase}",
+        "{$emoji} Fantastic beginning! 1 day down, many more to go! {$phrase}",
+        "{$emoji} You're off to a flying start with 1 day of practice and {$points} points! {$phrase}",
+        "{$emoji} Awesome job on your first day! {$phrase}",
+        "{$emoji} One day in, and you're already making progress! {$phrase}"
+    ];
+
+    $messages_two_days = [
+        "{$emoji} Awesome! You've practiced for 2 consecutive days and earned {$points} points! {$phrase}",
+        "{$emoji} Two days strong! Keep the momentum going! {$phrase}",
+        "{$emoji} Great consistency over 2 days! {$phrase}",
+        "{$emoji} Back-to-back practice! 2 days and counting! {$phrase}",
+        "{$emoji} You're building a habit! 2 days straight! {$phrase}"
+    ];
+
+    $messages_three_to_five_days = [
+        "{$emoji} Impressive! {$consecutive_days} days of consistent practice and {$points} points earned! {$phrase}",
+        "{$emoji} You're on fire! {$consecutive_days} days in a row! {$phrase}",
+        "{$emoji} Keep it up! {$consecutive_days} days of dedication! {$phrase}",
+        "{$emoji} Outstanding commitment over {$consecutive_days} days! {$phrase}",
+        "{$emoji} You're unstoppable! {$consecutive_days} days and going strong! {$phrase}"
+    ];
+
+    $messages_six_to_ten_days = [
+        "{$emoji} Outstanding! {$consecutive_days} consecutive days of practice and {$points} points accumulated! {$phrase}",
+        "{$emoji} Tenacity at its best! {$consecutive_days} days running! {$phrase}",
+        "{$emoji} Double digits! {$consecutive_days} days of progress! {$phrase}",
+        "{$emoji} You're a star performer! {$consecutive_days} days straight! {$phrase}",
+        "{$emoji} Keep soaring! {$consecutive_days} days of excellence! {$phrase}"
+    ];
+
+    $messages_eleven_to_twenty_days = [
+        "{$emoji} Amazing! {$consecutive_days} days in a row and {$points} points collected! {$phrase}",
+        "{$emoji} Your dedication shines through {$consecutive_days} days! {$phrase}",
+        "{$emoji} Over {$consecutive_days} days of relentless effort! {$phrase}",
+        "{$emoji} You're a role model with {$consecutive_days} days of practice! {$phrase}",
+        "{$emoji} Keep the energy high! {$consecutive_days} days and counting! {$phrase}"
+    ];
+
+    $messages_twentyone_to_thirty_days = [
+        "{$emoji} Exceptional! {$consecutive_days} consecutive days of practice and {$points} points earned! {$phrase}",
+        "{$emoji} What a milestone! {$consecutive_days} days of unwavering dedication! {$phrase}",
+        "{$emoji} You're a powerhouse with {$consecutive_days} days of learning! {$phrase}",
+        "{$emoji} Incredible persistence over {$consecutive_days} days! {$phrase}",
+        "{$emoji} Keep breaking records! {$consecutive_days} days achieved! {$phrase}"
+    ];
+
+    $messages_over_thirty_days = [
+        "{$emoji} Legendary! Over {$consecutive_days} days of continuous practice and {$points} points amassed! {$phrase}",
+        "{$emoji} You're rewriting the record books with {$consecutive_days} days! {$phrase}",
+        "{$emoji} An inspiration to all! {$consecutive_days} days of commitment! {$phrase}",
+        "{$emoji} Your journey is epic! {$consecutive_days} days and unstoppable! {$phrase}",
+        "{$emoji} You're a legend with {$consecutive_days} days of practice! {$phrase}"
+    ];
+
+    $messages_default = [
+        "{$emoji} Keep it up! You've practiced for {$consecutive_days} {$day_str} and earned {$points} points! {$phrase}",
+        "{$emoji} Great job! {$consecutive_days} {$day_str} of learning! {$phrase}",
+        "{$emoji} You're making steady progress over {$consecutive_days} {$day_str}! {$phrase}",
+        "{$emoji} Stay focused! {$consecutive_days} {$day_str} down! {$phrase}",
+        "{$emoji} Keep the dedication strong! {$consecutive_days} {$day_str} and counting! {$phrase}"
+    ];
+
+    $message .= '<p>';
+
     if ($consecutive_days == 0) {
-        $message .= "<p>🚀 You haven't started practicing yet! Click the button below to kickstart your language learning adventure! 😊</p>";
-    } elseif ($consecutive_days == 1 && $points == 1) {
-        $message .= "<p>🎉 Great start! You practiced for 1 day and earned 1 point! Let's keep the momentum going! 💪</p>";
-    } elseif ($consecutive_days == 1) {
-        $message .= "<p>👍 Great job! You practiced for 1 day and earned $points $point_str! Keep it up! 🌟</p>";
-    } elseif ($consecutive_days == 2) {
-        $message .= "<p>🔥 Yeah! You've practiced for 2 consecutive days and have earned $points $point_str! Keep going! 🏆</p>";
+        if ($points == 0) {
+            $message .= $messages_zero_days[array_rand($messages_zero_days)];
+        } else {
+            $message .= "{$emoji} You have {$points} points but haven't started practicing consistently yet! {$phrase}";
+        }
+    } elseif ($points == 0) {
+        $message .= $messages_zero_points[array_rand($messages_zero_points)];
     } else {
-        $message .= "<p>🏅 Fantastic! You've been practicing for $consecutive_days consecutive $day_str and have earned $points $point_str! Your dedication is paying off! Keep the streak alive! 🌠</p>";
+        // Select appropriate messages based on consecutive days
+        if ($consecutive_days == 1) {
+            $message .= $messages_one_day[array_rand($messages_one_day)];
+        } elseif ($consecutive_days == 2) {
+            $message .= $messages_two_days[array_rand($messages_two_days)];
+        } elseif ($consecutive_days >= 3 && $consecutive_days <= 5) {
+            $message .= $messages_three_to_five_days[array_rand($messages_three_to_five_days)];
+        } elseif ($consecutive_days >= 6 && $consecutive_days <= 10) {
+            $message .= $messages_six_to_ten_days[array_rand($messages_six_to_ten_days)];
+        } elseif ($consecutive_days >= 11 && $consecutive_days <= 20) {
+            $message .= $messages_eleven_to_twenty_days[array_rand($messages_eleven_to_twenty_days)];
+        } elseif ($consecutive_days >= 21 && $consecutive_days <= 30) {
+            $message .= $messages_twentyone_to_thirty_days[array_rand($messages_twentyone_to_thirty_days)];
+        } elseif ($consecutive_days > 30) {
+            $message .= $messages_over_thirty_days[array_rand($messages_over_thirty_days)];
+        } else {
+            $message .= $messages_default[array_rand($messages_default)];
+        }
     }
 
-    $message .= '<p style="text-align:center;padding:20px;">
+    $message .= '</p>';
+
+
+    $message .= '<p style="padding:18px;">
         <a href="' . $_ENV['SITE_URL'] . '/' . $phrase['date'] . '?from=email&id=' . urlencode($subscriber['id']) . '&token=' . urlencode($subscriber_token) . '" style="
             display:inline-block;
             background-color:#fff;
