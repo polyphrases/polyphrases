@@ -5,6 +5,7 @@ if (!isset($view_phrase)) {
 
 // Define available languages and their respective 2-letter codes
 $languages = [
+    'english'     => 'en',
     'spanish'     => 'es',
     'german'      => 'de',
     'italian'     => 'it',
@@ -31,15 +32,18 @@ if (isset($_SESSION['current_subscriber']) && isset($subscriber)) {
     $preferences = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Determine which languages the subscriber is interested in
-    $display_languages = ['english']; // Always include English
+    $display_languages = ['english'];
     foreach ($languages as $lang_name => $lang_code) {
+        if ($lang_name === 'english') {
+            continue;
+        }
         if (!empty($preferences[$lang_name])) {
             $display_languages[] = $lang_name;
         }
     }
 } else {
     // Not logged in, display all languages including English
-    $display_languages = array_merge(['english'], array_keys($languages));
+    $display_languages = array_keys($languages);
 }
 
 foreach ($languages as $lang_name => $lang_code) {
