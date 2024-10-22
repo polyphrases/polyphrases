@@ -203,36 +203,51 @@ foreach ($languages as $lang_name => $lang_code) {
         function playAudio(lang, date) {
             const audioFilePath = `/voices/${date}-${lang}.mp3`;
 
-            // Stop currently playing audio if any
-            if (currentAudio && !currentAudio.paused) {
+            // Get or create the audio element
+            if (!audioElements[audioFilePath]) {
+                audioElements[audioFilePath] = new Audio(audioFilePath);
+            }
+
+            const audio = audioElements[audioFilePath];
+            const button = document.querySelector(`.play-button[data-lang="${lang}"][data-date="${date}"]`);
+
+            // If there is a current audio playing and it's not the same as this one, pause it
+            if (currentAudio && currentAudio !== audio && !currentAudio.paused) {
                 currentAudio.pause();
-                currentAudio.currentTime = 0;
                 if (currentButton) {
                     currentButton.textContent = '▶️';
                 }
             }
 
-            // Play the selected audio
-            if (!audioElements[audioFilePath]) {
-                audioElements[audioFilePath] = new Audio(audioFilePath);
+            // Toggle play/pause
+            if (audio.paused) {
+                audio.play();
+                if (button) {
+                    button.textContent = '⏸️';
+                }
+                currentAudio = audio;
+                currentButton = button;
+            } else {
+                audio.pause();
+                if (button) {
+                    button.textContent = '▶️';
+                }
+                currentAudio = null;
+                currentButton = null;
             }
 
-            currentAudio = audioElements[audioFilePath];
-            currentAudio.play();
-
-            // Find the play button to update its icon
-            currentButton = document.querySelector(`.play-button[data-lang="${lang}"][data-date="${date}"]`);
-            if (currentButton) {
-                currentButton.textContent = '⏸️'; // Change to pause button
-
-                // Handle audio ended event to reset the button
-                currentAudio.onended = function () {
-                    currentButton.textContent = '▶️';
+            // Handle audio ended event to reset the button
+            audio.onended = function () {
+                if (button) {
+                    button.textContent = '▶️';
+                }
+                if (currentAudio === audio) {
                     currentAudio = null;
                     currentButton = null;
-                };
-            }
+                }
+            };
         }
+
 
         // Exercise functionality
         const exercises = document.querySelectorAll('.exercise');
@@ -344,16 +359,21 @@ foreach ($languages as $lang_name => $lang_code) {
                                     .then(response => response.json())
                                     .then(data => {
                                         if (data.success) {
-                                            // Update the points displayed on the site
-                                            pointsElement.textContent = data.new_points_total;
-
-                                            // Trigger the points animation
-                                            showPointsAnimation(Number(data.new_points_total), 5);
-
-                                            // Play audio after animation fades out
-                                            setTimeout(() => {
+                                            // If new_points_total is null
+                                            if (data.new_points_total === null) {
                                                 playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
-                                            }, 3000); // Wait for animation to finish
+                                            }else {
+                                                // Update the points displayed on the site
+                                                pointsElement.textContent = data.new_points_total;
+
+                                                // Trigger the points animation
+                                                showPointsAnimation(Number(data.new_points_total), 5);
+
+                                                // Play audio after animation fades out
+                                                setTimeout(() => {
+                                                    playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
+                                                }, 3000); // Wait for animation to finish
+                                            }
                                         }
                                     });
                             } else {
