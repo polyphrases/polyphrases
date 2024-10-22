@@ -370,7 +370,7 @@ foreach ($languages as $lang_name => $lang_code) {
                                                 // Play audio after animation fades out
                                                 setTimeout(() => {
                                                     playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
-                                                }, 3000); // Wait for animation to finish
+                                                }, 2800); // Wait for animation to finish
                                             }
                                         }
                                     });
