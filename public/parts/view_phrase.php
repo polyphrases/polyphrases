@@ -25,14 +25,8 @@ if (isset($_SESSION['current_subscriber']) && isset($subscriber)) {
     // Subscriber is logged in
     $subscriber_id = $_SESSION['current_subscriber'];
 
-    // Fetch subscriber preferences from the database
-    // Assuming that subscriber table has boolean fields for each language indicating interest (1 for interested, 0 for not)
-    // The fields are named 'spanish', 'german', etc.
-
-    // You need to fetch these preferences. Assuming you have a $pdo database connection:
-
     // Prepare the SQL statement
-    $stmt = $pdo->prepare("SELECT spanish, german, italian, french, portuguese, norwegian FROM subscribers WHERE id = :id");
+    $stmt = $pdo->prepare("SELECT * FROM subscribers WHERE id = :id");
     $stmt->execute([':id' => $subscriber_id]);
     $preferences = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -163,7 +157,7 @@ foreach ($languages as $lang_name => $lang_code) {
             // Shuffle the missing words
             shuffle($missing_words);
             ?>
-            <div class="exercise" id="<?php echo $exercise_id; ?>" data-correct-phrase="<?php echo htmlspecialchars($phrase, ENT_QUOTES, 'UTF-8'); ?>" data-lang-code="<?php echo $lang['lang_code']; ?>" data-phrase-id="<?php echo $view_phrase['id']; ?>">
+            <div class="exercise" id="<?php echo $exercise_id; ?>" data-correct-phrase="<?php echo htmlspecialchars($phrase, ENT_QUOTES, 'UTF-8'); ?>" data-lang-code="<?php echo $lang['lang_code']; ?>" data-phrase-id="<?php echo $view_phrase['id']; ?>" data-date="<?php echo $view_phrase['date']; ?>">
                 <p>
                     <!-- Display the phrase with placeholders -->
                     <?php foreach ($tokens as $token): ?>
@@ -221,7 +215,18 @@ foreach ($languages as $lang_name => $lang_code) {
 
             // Toggle play/pause
             if (audio.paused) {
-                audio.play();
+                // Ensure audio is loaded before playing
+                if (audio.readyState >= 3) { // HAVE_FUTURE_DATA or higher
+                    audio.play();
+                } else {
+                    // Add event listener to play when ready
+                    audio.addEventListener('canplaythrough', function canPlay() {
+                        audio.removeEventListener('canplaythrough', canPlay);
+                        audio.play();
+                    });
+                    audio.load(); // Start loading the audio
+                }
+
                 if (button) {
                     button.textContent = '⏸️';
                 }
@@ -248,7 +253,6 @@ foreach ($languages as $lang_name => $lang_code) {
             };
         }
 
-
         // Exercise functionality
         const exercises = document.querySelectorAll('.exercise');
 
@@ -258,7 +262,7 @@ foreach ($languages as $lang_name => $lang_code) {
             const langCode = exercise.dataset.langCode;
             const phraseId = exercise.dataset.phraseId;
             const revealButton = document.querySelector(`.reveal-button[data-exercise-id="${exercise.id}"]`);
-            const playButton = document.querySelector(`.play-button[data-lang="${langCode}"]`);
+            const playButton = document.querySelector(`.play-button[data-lang="${langCode}"][data-date="${exercise.dataset.date}"]`);
 
             // Get all word elements in the exercise
             const wordElements = exercise.querySelectorAll('span.constructed-word, span.placeholder');
@@ -367,10 +371,10 @@ foreach ($languages as $lang_name => $lang_code) {
                                                 // Trigger the points animation
                                                 showPointsAnimation(Number(data.new_points_total), 5);
 
-                                                // Play audio after animation fades out
+                                                // Play audio after animation starts fading out
                                                 setTimeout(() => {
                                                     playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
-                                                }, 2800); // Wait for animation to finish
+                                                }, 1600);
                                             }
                                         }
                                     });
@@ -506,7 +510,7 @@ foreach ($languages as $lang_name => $lang_code) {
             // Remove the overlay after the animation ends
             setTimeout(() => {
                 document.body.removeChild(overlay);
-            }, 3000); // total animation duration (fade in + count + fade out)
+            }, 3000);
         }
     });
 </script>

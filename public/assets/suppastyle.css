@@ -320,6 +320,7 @@ footer a {
     opacity: 0;
     z-index: 9;
     pointer-events: none;
+    overflow: hidden; /* Added to prevent overflow */
 }
 
 .points-overlay.show {
@@ -328,8 +329,9 @@ footer a {
 
 .points-overlay .points-text {
     color: white;
-    font-size: 5em;
+    font-size: 5em; /* Starting font size */
     font-weight: bold;
+    animation: growText 3s forwards; /* Added animation */
 }
 
 /* Keyframe animations */
@@ -345,6 +347,15 @@ footer a {
     }
     100% { /* At 3 seconds */
         opacity: 0;
+    }
+}
+
+@keyframes growText {
+    0% {
+        font-size: 5em;
+    }
+    100% {
+        font-size: 9em;
     }
 }
 

@@ -18,7 +18,7 @@ if (!isset($_SESSION['visit_comes_from'])) {
     $_SESSION['visit_comes_from'] = 'unknown';
 }
 
-if (isset($_SESSION['current_subscriber'])) {
+if (isset($_SESSION['current_subscriber']) and $_SESSION['current_subscriber'] !== false) {
     $stmt = $pdo->prepare("SELECT * FROM subscribers WHERE id = :id LIMIT 1");
     $stmt->execute([':id' => $_SESSION['current_subscriber']]);
     $subscriber = $stmt->fetch(PDO::FETCH_ASSOC);
