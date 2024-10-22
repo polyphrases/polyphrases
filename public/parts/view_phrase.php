@@ -5,7 +5,6 @@ if (!isset($view_phrase)) {
 
 // Define available languages and their respective 2-letter codes
 $languages = [
-    'english'     => 'en',
     'spanish'     => 'es',
     'german'      => 'de',
     'italian'     => 'it',
@@ -20,7 +19,41 @@ $audio_base_path = '/voices/' . $view_phrase['date'] . '-';
 // Prepare language data to avoid duplication
 $language_data = [];
 
+// Determine which languages to display
+$display_languages = array_keys($languages); // Default to all languages
+if (isset($_SESSION['current_subscriber']) && isset($subscriber)) {
+    // Subscriber is logged in
+    $subscriber_id = $_SESSION['current_subscriber'];
+
+    // Fetch subscriber preferences from the database
+    // Assuming that subscriber table has boolean fields for each language indicating interest (1 for interested, 0 for not)
+    // The fields are named 'spanish', 'german', etc.
+
+    // You need to fetch these preferences. Assuming you have a $pdo database connection:
+
+    // Prepare the SQL statement
+    $stmt = $pdo->prepare("SELECT spanish, german, italian, french, portuguese, norwegian FROM subscribers WHERE id = :id");
+    $stmt->execute([':id' => $subscriber_id]);
+    $preferences = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Determine which languages the subscriber is interested in
+    $display_languages = ['english']; // Always include English
+    foreach ($languages as $lang_name => $lang_code) {
+        if (!empty($preferences[$lang_name])) {
+            $display_languages[] = $lang_name;
+        }
+    }
+} else {
+    // Not logged in, display all languages including English
+    $display_languages = array_merge(['english'], array_keys($languages));
+}
+
 foreach ($languages as $lang_name => $lang_code) {
+    // Skip languages not in the display list
+    if (!in_array($lang_name, $display_languages)) {
+        continue;
+    }
+
     $db_field_name = $lang_name === 'english' ? 'phrase' : $lang_name;
     $audio_file = $_SERVER['DOCUMENT_ROOT'] . $audio_base_path . $lang_code . '.mp3';
     $audio_exists = file_exists($audio_file);
@@ -35,7 +68,6 @@ foreach ($languages as $lang_name => $lang_code) {
     ];
 }
 ?>
-
 <article class="phrase-viewer">
     <header>
         <a href="/" title="Poly Phrases"><h1>Poly Phrases</h1></a>
@@ -55,11 +87,6 @@ foreach ($languages as $lang_name => $lang_code) {
         <h3>
             <span><?php echo ucfirst($lang['lang_name']); ?></span>
             <span>
-            <?php if ($lang['audio_exists']): ?>
-                <button class="play-button" data-lang="<?php echo $lang['lang_code']; ?>" data-date="<?php echo $view_phrase['date']; ?>" aria-label="Play audio">
-                    ▶️
-                </button>
-            <?php endif; ?>
                 <?php if ($lang['lang_name'] !== 'english'): ?>
                     <?php
                     // Generate a unique ID for this exercise
@@ -68,6 +95,11 @@ foreach ($languages as $lang_name => $lang_code) {
                     <button class="reveal-button" data-exercise-id="<?php echo $exercise_id; ?>" aria-label="Reveal phrase">
                     👁️
                 </button>
+                <?php endif; ?>
+                <?php if ($lang['audio_exists']): ?>
+                    <button class="play-button" data-lang="<?php echo $lang['lang_code']; ?>" data-date="<?php echo $view_phrase['date']; ?>" aria-label="Play audio" style="display: none;">
+                        ▶️
+                    </button>
                 <?php endif; ?>
             </span>
         </h3>
@@ -168,37 +200,30 @@ foreach ($languages as $lang_name => $lang_code) {
         let currentAudio = null;
         let currentButton = null;
 
-        document.querySelectorAll('.play-button').forEach(function (button) {
-            button.addEventListener('click', function () {
-                const lang = this.getAttribute('data-lang');
-                const date = this.getAttribute('data-date');
-                const audioFilePath = `/voices/${date}-${lang}.mp3`;
+        function playAudio(lang, date) {
+            const audioFilePath = `/voices/${date}-${lang}.mp3`;
 
-                // Stop currently playing audio if any
-                if (currentAudio && !currentAudio.paused) {
-                    currentAudio.pause();
-                    currentAudio.currentTime = 0;
-                    if (currentButton) {
-                        currentButton.textContent = '▶️';
-                    }
+            // Stop currently playing audio if any
+            if (currentAudio && !currentAudio.paused) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                if (currentButton) {
+                    currentButton.textContent = '▶️';
                 }
+            }
 
-                // If clicking the same button again, stop playback
-                if (currentAudio && this === currentButton) {
-                    currentAudio = null;
-                    currentButton = null;
-                    return;
-                }
+            // Play the selected audio
+            if (!audioElements[audioFilePath]) {
+                audioElements[audioFilePath] = new Audio(audioFilePath);
+            }
 
-                // Play the selected audio
-                if (!audioElements[audioFilePath]) {
-                    audioElements[audioFilePath] = new Audio(audioFilePath);
-                }
+            currentAudio = audioElements[audioFilePath];
+            currentAudio.play();
 
-                currentAudio = audioElements[audioFilePath];
-                currentAudio.play();
-                currentButton = this;
-                this.textContent = '⏸️'; // Change to pause button
+            // Find the play button to update its icon
+            currentButton = document.querySelector(`.play-button[data-lang="${lang}"][data-date="${date}"]`);
+            if (currentButton) {
+                currentButton.textContent = '⏸️'; // Change to pause button
 
                 // Handle audio ended event to reset the button
                 currentAudio.onended = function () {
@@ -206,8 +231,8 @@ foreach ($languages as $lang_name => $lang_code) {
                     currentAudio = null;
                     currentButton = null;
                 };
-            });
-        });
+            }
+        }
 
         // Exercise functionality
         const exercises = document.querySelectorAll('.exercise');
@@ -218,6 +243,7 @@ foreach ($languages as $lang_name => $lang_code) {
             const langCode = exercise.dataset.langCode;
             const phraseId = exercise.dataset.phraseId;
             const revealButton = document.querySelector(`.reveal-button[data-exercise-id="${exercise.id}"]`);
+            const playButton = document.querySelector(`.play-button[data-lang="${langCode}"]`);
 
             // Get all word elements in the exercise
             const wordElements = exercise.querySelectorAll('span.constructed-word, span.placeholder');
@@ -294,6 +320,11 @@ foreach ($languages as $lang_name => $lang_code) {
                                 revealButton.style.display = 'none';
                             }
 
+                            // Show the play button
+                            if (playButton) {
+                                playButton.style.display = '';
+                            }
+
                             // Check if user is logged in
                             const pointsElement = document.getElementById('current-total-points');
                             if (pointsElement) {
@@ -318,8 +349,18 @@ foreach ($languages as $lang_name => $lang_code) {
 
                                             // Trigger the points animation
                                             showPointsAnimation(Number(data.new_points_total), 5);
+
+                                            // Play audio after animation fades out
+                                            setTimeout(() => {
+                                                playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
+                                            }, 3000); // Wait for animation to finish
                                         }
                                     });
+                            } else {
+                                // Play audio immediately if not logged in
+                                setTimeout(() => {
+                                    playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
+                                }, 3000); // Wait for any visual feedback to finish
                             }
                         }
                     } else {
@@ -338,6 +379,11 @@ foreach ($languages as $lang_name => $lang_code) {
                 // Show the reveal button if it was hidden
                 if (revealButton && revealButton.style.display === 'none') {
                     revealButton.style.display = '';
+                }
+
+                // Hide the play button
+                if (playButton) {
+                    playButton.style.display = 'none';
                 }
             }
 
@@ -371,6 +417,14 @@ foreach ($languages as $lang_name => $lang_code) {
                     // Hide the reveal button
                     revealButton.style.display = 'none';
 
+                    // Show the play button
+                    if (playButton) {
+                        playButton.style.display = '';
+                    }
+
+                    // Play audio immediately
+                    playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
+
                     // Allow the user to remove fillers
                     placeholders.forEach(function (placeholder, index) {
                         placeholder.addEventListener('click', function placeholderClickHandler() {
@@ -378,6 +432,13 @@ foreach ($languages as $lang_name => $lang_code) {
                             placeholder.removeEventListener('click', placeholderClickHandler);
                         });
                     });
+                });
+            }
+
+            // Add click event to play button
+            if (playButton) {
+                playButton.addEventListener('click', function () {
+                    playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
                 });
             }
         });
