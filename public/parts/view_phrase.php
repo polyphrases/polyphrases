@@ -91,11 +91,11 @@ foreach ($languages as $lang_name => $lang_code) {
                     $exercise_id = 'exercise_' . $lang['lang_code'];
                     ?>
                     <button class="reveal-button" data-exercise-id="<?php echo $exercise_id; ?>" aria-label="Reveal phrase">
-                    👁️
-                </button>
+                        👁️
+                    </button>
                 <?php endif; ?>
                 <?php if ($lang['audio_exists']): ?>
-                    <button class="play-button" data-lang="<?php echo $lang['lang_code']; ?>" data-date="<?php echo $view_phrase['date']; ?>" aria-label="Play audio"<?php if($lang['lang_code'] !== 'en') { echo ' style="display: none;"'; } ?>>
+                    <button class="play-button" data-lang="<?php echo $lang['lang_code']; ?>" data-date="<?php echo $view_phrase['date']; ?>" aria-label="Play audio" <?php if($lang['lang_code'] !== 'en') { echo 'style="display: none;"'; } ?>>
                         ▶️
                     </button>
                 <?php endif; ?>
@@ -257,6 +257,15 @@ foreach ($languages as $lang_name => $lang_code) {
             };
         }
 
+        // Add event listeners to all play buttons
+        document.querySelectorAll('.play-button').forEach(function (playButton) {
+            playButton.addEventListener('click', function () {
+                const lang = playButton.dataset.lang;
+                const date = playButton.dataset.date;
+                playAudio(lang, date);
+            });
+        });
+
         // Exercise functionality
         const exercises = document.querySelectorAll('.exercise');
 
@@ -367,7 +376,7 @@ foreach ($languages as $lang_name => $lang_code) {
                                     .then(response => response.json())
                                     .then(data => {
                                         if (data.success) {
-                                            // If new_points_total is null
+                                            // If new_points_total is not null
                                             if (data.new_points_total !== null) {
                                                 // Update the points displayed on the site
                                                 pointsElement.textContent = data.new_points_total;
@@ -458,13 +467,6 @@ foreach ($languages as $lang_name => $lang_code) {
                             placeholder.removeEventListener('click', placeholderClickHandler);
                         });
                     });
-                });
-            }
-
-            // Add click event to play button
-            if (playButton) {
-                playButton.addEventListener('click', function () {
-                    playAudio(langCode, '<?php echo $view_phrase['date']; ?>');
                 });
             }
         });
